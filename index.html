@@ -15,6 +15,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
 <style>
 /* ══════════════════════════════════════════════
    DESIGN TOKENS — Dark Mode SaaS
@@ -3348,6 +3349,414 @@ body.light-theme .ambient-aura-2 { opacity:0.045; }
   animation-fill-mode: both;
 }
 
+
+/* ══════════════════════════════════════════════
+   PIN LOCK — Security Layer
+══════════════════════════════════════════════ */
+#pinLockScreen {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  animation: pinFadeIn .35s ease both;
+}
+#pinLockScreen.pin-hidden { display: none; }
+
+#pinLockScreen .pin-scroll-wrap {
+  width: 100%;
+  max-width: 432px;
+  padding: 56px 16px 48px;
+  box-sizing: border-box;
+  margin: auto;
+}
+
+@keyframes pinFadeIn {
+  from { opacity: 0; transform: scale(.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.pin-card {
+  background: var(--surface-1);
+  border: 1px solid var(--brd);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: 40px 36px 36px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.pin-logo-wrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(56,189,248,.18) 0%, rgba(99,102,241,.18) 100%);
+  border: 1px solid rgba(56,189,248,.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin-bottom: 20px;
+  box-shadow: 0 0 24px rgba(56,189,248,.15);
+}
+.pin-logo-img {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  object-fit: contain;
+  margin-bottom: 20px;
+  box-shadow: 0 0 24px rgba(56,189,248,.18), 0 4px 16px rgba(0,0,0,.25);
+  border: 1.5px solid rgba(56,189,248,.2);
+  background: rgba(56,189,248,.07);
+  padding: 6px;
+  display: block;
+}
+
+.pin-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--txt-1);
+  letter-spacing: -.02em;
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.pin-subtitle {
+  font-size: .82rem;
+  color: var(--txt-3);
+  text-align: center;
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
+
+.pin-dots {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  justify-content: center;
+}
+
+.pin-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--brd-2);
+  background: transparent;
+  transition: background .15s, border-color .15s, transform .12s;
+}
+.pin-dot.filled {
+  background: var(--sky);
+  border-color: var(--sky);
+  transform: scale(1.15);
+  box-shadow: 0 0 10px rgba(56,189,248,.45);
+}
+.pin-dot.error {
+  background: var(--red);
+  border-color: var(--red);
+  animation: pinShake .35s ease;
+}
+
+@keyframes pinShake {
+  0%,100%{transform:translateX(0);}
+  20%{transform:translateX(-6px);}
+  40%{transform:translateX(6px);}
+  60%{transform:translateX(-4px);}
+  80%{transform:translateX(4px);}
+}
+
+.pin-input-wrap {
+  position: relative;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.pin-input {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1.5px solid var(--brd);
+  border-radius: var(--radius-md);
+  color: var(--txt-1);
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: .35em;
+  padding: 14px 48px 14px 20px;
+  text-align: center;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  font-family: 'Inter', monospace;
+  box-sizing: border-box;
+}
+.pin-input:focus {
+  border-color: var(--sky);
+  box-shadow: 0 0 0 3px rgba(56,189,248,.15);
+}
+.pin-input.pin-error {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(244,63,94,.15);
+  animation: pinShake .35s ease;
+}
+
+.pin-eye-btn {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--txt-3);
+  font-size: 1rem;
+  padding: 4px;
+  line-height: 1;
+  transition: color .15s;
+}
+.pin-eye-btn:hover { color: var(--txt-1); }
+
+.pin-error-msg {
+  font-size: .78rem;
+  color: var(--red);
+  font-weight: 600;
+  min-height: 18px;
+  text-align: center;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.pin-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+  border: none;
+  border-radius: var(--radius-md);
+  color: #fff;
+  font-size: .92rem;
+  font-weight: 700;
+  padding: 13px 24px;
+  cursor: pointer;
+  transition: opacity .15s, transform .12s, box-shadow .15s;
+  box-shadow: 0 4px 16px rgba(56,189,248,.3);
+  letter-spacing: .01em;
+  margin-top: 4px;
+}
+.pin-btn:hover { opacity:.92; transform:translateY(-1px); box-shadow: 0 6px 20px rgba(56,189,248,.38); }
+.pin-btn:active { transform:translateY(0); }
+.pin-btn:disabled { opacity:.45; cursor:not-allowed; transform:none; }
+
+.pin-btn-ghost {
+  background: none;
+  border: 1.5px solid var(--brd);
+  color: var(--txt-2);
+  box-shadow: none;
+  margin-top: 8px;
+}
+.pin-btn-ghost:hover { background: var(--glass-hov); border-color: var(--brd-2); color: var(--txt-1); box-shadow: none; }
+
+.pin-forgot-link {
+  margin-top: 18px;
+  font-size: .78rem;
+  color: var(--txt-3);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color .15s;
+  background: none;
+  border: none;
+  padding: 0;
+}
+.pin-forgot-link:hover { color: var(--sky); }
+
+.pin-length-picker {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+.pin-len-opt {
+  flex: 1;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--brd);
+  background: var(--surface-2);
+  color: var(--txt-2);
+  font-size: .82rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color .15s, background .15s, color .15s;
+}
+.pin-len-opt.selected {
+  border-color: var(--sky);
+  background: rgba(56,189,248,.12);
+  color: var(--sky);
+}
+
+.pin-field-label {
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--txt-3);
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  align-self: flex-start;
+  margin-bottom: 6px;
+  width: 100%;
+}
+
+.pin-select {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1.5px solid var(--brd);
+  border-radius: var(--radius-md);
+  color: var(--txt-1);
+  font-size: .85rem;
+  font-weight: 600;
+  padding: 12px 14px;
+  outline: none;
+  cursor: pointer;
+  margin-bottom: 12px;
+  transition: border-color .2s;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+}
+.pin-select:focus { border-color: var(--sky); }
+
+.pin-text-input {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1.5px solid var(--brd);
+  border-radius: var(--radius-md);
+  color: var(--txt-1);
+  font-size: .88rem;
+  font-weight: 600;
+  padding: 12px 14px;
+  outline: none;
+  margin-bottom: 12px;
+  transition: border-color .2s;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+}
+.pin-text-input:focus { border-color: var(--sky); box-shadow: 0 0 0 3px rgba(56,189,248,.12); }
+.pin-text-input::placeholder { color: var(--txt-3); font-weight: 400; }
+
+.pin-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--brd);
+  margin: 16px 0;
+}
+
+.pin-step-label {
+  font-size: .7rem;
+  font-weight: 700;
+  color: var(--txt-3);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.pin-success-flash {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-xl);
+  background: rgba(16,185,129,.12);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .2s;
+}
+.pin-success-flash.show { opacity: 1; }
+
+/* Light theme overrides */
+body.light-theme .pin-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: var(--shadow-lg);
+}
+body.light-theme .pin-input,
+body.light-theme .pin-select,
+body.light-theme .pin-text-input {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #1e293b;
+}
+body.light-theme .pin-len-opt {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #475569;
+}
+body.light-theme .pin-len-opt.selected {
+  background: rgba(14,165,233,.08);
+  border-color: #0ea5e9;
+  color: #0284c7;
+}
+body.light-theme .pin-title { color: #1e293b; }
+body.light-theme .pin-subtitle { color: #64748b; }
+body.light-theme .pin-dot { border-color: #cbd5e1; }
+body.light-theme .pin-btn-ghost {
+  border-color: #cbd5e1;
+  color: #475569;
+}
+body.light-theme .pin-btn-ghost:hover { background: #f1f5f9; }
+
+/* ── Change PIN modal ── */
+#changePinModal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  background: rgba(0,0,0,.6);
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  backdrop-filter: blur(6px);
+}
+#changePinModal.open { display: flex; }
+.cpm-card {
+  background: var(--surface-1);
+  border: 1px solid var(--brd);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: 32px 28px 28px;
+  width: 100%;
+  max-width: 400px;
+  position: relative;
+}
+.cpm-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--txt-1);
+  margin-bottom: 4px;
+  letter-spacing: -.015em;
+}
+.cpm-sub {
+  font-size: .78rem;
+  color: var(--txt-3);
+  margin-bottom: 20px;
+}
+.cpm-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: var(--txt-3);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background .15s, color .15s;
+}
+.cpm-close:hover { background: var(--glass-hov); color: var(--txt-1); }
+
+body.light-theme .cpm-card { background: #ffffff; border-color: #e2e8f0; }
+body.light-theme .cpm-title { color: #1e293b; }
+
 </style>
 <script>window.tailwind={config:{corePlugins:{preflight:false}}};</script>
 <script src="https://cdn.tailwindcss.com"></script>
@@ -3355,6 +3764,235 @@ body.light-theme .ambient-aura-2 { opacity:0.045; }
 <body>
 <div class="ambient-aura-1" aria-hidden="true"></div>
 <div class="ambient-aura-2" aria-hidden="true"></div>
+
+<!-- ══ PIN LOCK SCREEN ══ -->
+<div id="pinLockScreen" class="pin-hidden">
+  <div class="pin-scroll-wrap">
+
+  <!-- PIN SETUP (first time) -->
+  <div class="pin-card" id="pinSetupCard" style="display:none;">
+    <div class="pin-success-flash" id="pinSetupFlash"></div>
+    <img class="pin-logo-img" id="pinSetupLogo" src="" alt="ProctoAct"/>
+    <div class="pin-title">Set Your Security PIN</div>
+    <div class="pin-subtitle">Create a PIN to keep your workspace private. You'll enter it each time you open ProctoAct.</div>
+
+    <div class="pin-field-label">PIN Length</div>
+    <div class="pin-length-picker">
+      <div class="pin-len-opt selected" id="pinLen4" onclick="selectPinLength(4)">4 Digits</div>
+      <div class="pin-len-opt" id="pinLen6" onclick="selectPinLength(6)">6 Digits</div>
+    </div>
+
+    <div class="pin-field-label">Your PIN</div>
+    <div class="pin-input-wrap">
+      <input class="pin-input" id="pinSetupInput" type="password" inputmode="numeric" pattern="[0-9]*"
+             maxlength="4" placeholder="● ● ● ●" autocomplete="new-password"
+             oninput="pinSetupOnInput()" onkeydown="if(event.key==='Enter')confirmSetupPin()" />
+      <button class="pin-eye-btn" onclick="togglePinEye('pinSetupInput',this)" title="Show/hide PIN">👁</button>
+    </div>
+
+    <div class="pin-field-label">Confirm PIN</div>
+    <div class="pin-input-wrap">
+      <input class="pin-input" id="pinSetupConfirm" type="password" inputmode="numeric" pattern="[0-9]*"
+             maxlength="4" placeholder="● ● ● ●" autocomplete="new-password"
+             onkeydown="if(event.key==='Enter')confirmSetupPin()" />
+      <button class="pin-eye-btn" onclick="togglePinEye('pinSetupConfirm',this)" title="Show/hide PIN">👁</button>
+    </div>
+
+    <div class="pin-divider"></div>
+
+    <div class="pin-field-label">Security Question</div>
+    <select class="pin-select" id="pinSecQuestion">
+      <option value="">— Select a question —</option>
+      <option>What was your first pet's name?</option>
+      <option>What city were you born in?</option>
+      <option>What is your mother's maiden name?</option>
+      <option>What was the name of your primary school?</option>
+      <option>What is your favourite book?</option>
+      <option>What street did you grow up on?</option>
+      <option>What was your childhood nickname?</option>
+    </select>
+
+    <div class="pin-field-label">Your Answer</div>
+    <input class="pin-text-input" id="pinSecAnswer" type="text" placeholder="Answer (case-insensitive)" autocomplete="off"
+           onkeydown="if(event.key==='Enter')confirmSetupPin()" />
+
+    <div class="pin-error-msg" id="pinSetupError"></div>
+    <button class="pin-btn" onclick="confirmSetupPin()">Save PIN &amp; Continue →</button>
+  </div>
+
+  <!-- PIN UNLOCK (returning user) -->
+  <div class="pin-card" id="pinUnlockCard" style="display:none;">
+    <div class="pin-success-flash" id="pinUnlockFlash"></div>
+    <img class="pin-logo-img" id="pinUnlockLogo" src="" alt="ProctoAct"/>
+    <div class="pin-title">Enter PIN to Unlock</div>
+    <div class="pin-subtitle">Enter your security PIN to access your workspace.</div>
+
+    <div class="pin-dots" id="pinUnlockDots"></div>
+
+    <div class="pin-input-wrap">
+      <input class="pin-input" id="pinUnlockInput" type="password" inputmode="numeric" pattern="[0-9]*"
+             placeholder="● ● ● ●" autocomplete="current-password"
+             oninput="pinUnlockOnInput()" onkeydown="if(event.key==='Enter')submitUnlockPin()" />
+      <button class="pin-eye-btn" onclick="togglePinEye('pinUnlockInput',this)" title="Show/hide PIN">👁</button>
+    </div>
+
+    <div class="pin-error-msg" id="pinUnlockError"></div>
+    <button class="pin-btn" onclick="submitUnlockPin()">Unlock</button>
+    <button class="pin-forgot-link" onclick="showForgotPin()">Forgot PIN?</button>
+  </div>
+
+  <!-- FORGOT PIN / RECOVERY -->
+  <div class="pin-card" id="pinForgotCard" style="display:none;">
+    <img class="pin-logo-img" id="pinForgotLogo" src="" alt="ProctoAct"/>
+    <div class="pin-title">Reset Your PIN</div>
+    <div class="pin-subtitle">Answer your security question to set a new PIN.</div>
+
+    <div class="pin-step-label" id="pinForgotQuestion">Loading question…</div>
+
+    <div class="pin-field-label">Your Answer</div>
+    <input class="pin-text-input" id="pinForgotAnswer" type="text" placeholder="Your answer"
+           autocomplete="off" onkeydown="if(event.key==='Enter')verifyForgotAnswer()" />
+
+    <div class="pin-error-msg" id="pinForgotError"></div>
+    <button class="pin-btn" onclick="verifyForgotAnswer()">Verify Answer</button>
+    <button class="pin-btn pin-btn-ghost" onclick="showUnlockScreen()">← Back</button>
+  </div>
+
+  <!-- RESET PIN (after answering security question) -->
+  <div class="pin-card" id="pinResetCard" style="display:none;">
+    <div class="pin-success-flash" id="pinResetFlash"></div>
+    <img class="pin-logo-img" id="pinResetLogo" src="" alt="ProctoAct"/>
+    <div class="pin-title">Set a New PIN</div>
+    <div class="pin-subtitle">Choose a new 4 or 6-digit PIN and update your security question if you like.</div>
+
+    <div class="pin-field-label">New PIN Length</div>
+    <div class="pin-length-picker">
+      <div class="pin-len-opt selected" id="pinResetLen4" onclick="selectResetPinLength(4)">4 Digits</div>
+      <div class="pin-len-opt" id="pinResetLen6" onclick="selectResetPinLength(6)">6 Digits</div>
+    </div>
+
+    <div class="pin-field-label">New PIN</div>
+    <div class="pin-input-wrap">
+      <input class="pin-input" id="pinResetInput" type="password" inputmode="numeric" pattern="[0-9]*"
+             maxlength="4" placeholder="● ● ● ●" autocomplete="new-password"
+             oninput="pinResetOnInput()" onkeydown="if(event.key==='Enter')confirmResetPin()" />
+      <button class="pin-eye-btn" onclick="togglePinEye('pinResetInput',this)" title="Show/hide PIN">👁</button>
+    </div>
+
+    <div class="pin-field-label">Confirm New PIN</div>
+    <div class="pin-input-wrap">
+      <input class="pin-input" id="pinResetConfirm" type="password" inputmode="numeric" pattern="[0-9]*"
+             maxlength="4" placeholder="● ● ● ●" autocomplete="new-password"
+             onkeydown="if(event.key==='Enter')confirmResetPin()" />
+      <button class="pin-eye-btn" onclick="togglePinEye('pinResetConfirm',this)" title="Show/hide PIN">👁</button>
+    </div>
+
+    <div class="pin-divider"></div>
+
+    <div class="pin-field-label">Update Security Question (optional)</div>
+    <select class="pin-select" id="pinResetQuestion">
+      <option value="">— Keep existing question —</option>
+      <option>What was your first pet's name?</option>
+      <option>What city were you born in?</option>
+      <option>What is your mother's maiden name?</option>
+      <option>What was the name of your primary school?</option>
+      <option>What is your favourite book?</option>
+      <option>What street did you grow up on?</option>
+      <option>What was your childhood nickname?</option>
+    </select>
+
+    <div class="pin-field-label" id="pinResetAnsLabel" style="display:none;">New Answer</div>
+    <input class="pin-text-input" id="pinResetAnswer" type="text" placeholder="New answer" autocomplete="off"
+           style="display:none;" onkeydown="if(event.key==='Enter')confirmResetPin()" />
+
+    <div class="pin-error-msg" id="pinResetError"></div>
+    <button class="pin-btn" onclick="confirmResetPin()">Save New PIN →</button>
+  </div>
+
+  </div><!-- /.pin-scroll-wrap -->
+</div>
+
+<!-- ══ CHANGE PIN MODAL (from More Options menu) ══ -->
+<div id="changePinModal">
+  <div class="cpm-card" id="cpmCard">
+    <button class="cpm-close" onclick="closeChangePinModal()">✕</button>
+
+    <!-- Step 1: Verify Old PIN -->
+    <div id="cpmStep1">
+      <div class="cpm-title">🔒 Change Security PIN</div>
+      <div class="cpm-sub">Enter your current PIN to proceed.</div>
+      <div class="pin-field-label">Current PIN</div>
+      <div class="pin-input-wrap" style="margin-bottom:0;">
+        <input class="pin-input" id="cpmOldPin" type="password" inputmode="numeric" pattern="[0-9]*"
+               placeholder="Current PIN" autocomplete="current-password"
+               onkeydown="if(event.key==='Enter')verifyCpmOldPin()" />
+        <button class="pin-eye-btn" onclick="togglePinEye('cpmOldPin',this)" title="Show/hide PIN">👁</button>
+      </div>
+      <div class="pin-error-msg" id="cpmStep1Error"></div>
+      <button class="pin-btn" onclick="verifyCpmOldPin()" style="width:100%;margin-top:4px;">Verify →</button>
+    </div>
+
+    <!-- Step 2: Set New PIN -->
+    <div id="cpmStep2" style="display:none;">
+      <div class="cpm-title">Set New PIN</div>
+      <div class="cpm-sub">Choose a new PIN and update your security question if needed.</div>
+
+      <div class="pin-field-label">New PIN Length</div>
+      <div class="pin-length-picker">
+        <div class="pin-len-opt selected" id="cpmLen4" onclick="selectCpmLength(4)">4 Digits</div>
+        <div class="pin-len-opt" id="cpmLen6" onclick="selectCpmLength(6)">6 Digits</div>
+      </div>
+
+      <div class="pin-field-label">New PIN</div>
+      <div class="pin-input-wrap">
+        <input class="pin-input" id="cpmNewPin" type="password" inputmode="numeric" pattern="[0-9]*"
+               maxlength="4" placeholder="New PIN" autocomplete="new-password"
+               oninput="cpmNewPinOnInput()" onkeydown="if(event.key==='Enter')saveCpmNewPin()" />
+        <button class="pin-eye-btn" onclick="togglePinEye('cpmNewPin',this)" title="Show/hide PIN">👁</button>
+      </div>
+
+      <div class="pin-field-label">Confirm New PIN</div>
+      <div class="pin-input-wrap">
+        <input class="pin-input" id="cpmConfirmPin" type="password" inputmode="numeric" pattern="[0-9]*"
+               maxlength="4" placeholder="Confirm PIN" autocomplete="new-password"
+               onkeydown="if(event.key==='Enter')saveCpmNewPin()" />
+        <button class="pin-eye-btn" onclick="togglePinEye('cpmConfirmPin',this)" title="Show/hide PIN">👁</button>
+      </div>
+
+      <div class="pin-divider"></div>
+
+      <div class="pin-field-label">Update Security Question (optional)</div>
+      <select class="pin-select" id="cpmQuestion" onchange="cpmQuestionChanged()">
+        <option value="">— Keep existing question —</option>
+        <option>What was your first pet's name?</option>
+        <option>What city were you born in?</option>
+        <option>What is your mother's maiden name?</option>
+        <option>What was the name of your primary school?</option>
+        <option>What is your favourite book?</option>
+        <option>What street did you grow up on?</option>
+        <option>What was your childhood nickname?</option>
+      </select>
+      <input class="pin-text-input" id="cpmAnswer" type="text" placeholder="New answer"
+             autocomplete="off" style="display:none;"
+             onkeydown="if(event.key==='Enter')saveCpmNewPin()" />
+
+      <div class="pin-error-msg" id="cpmStep2Error"></div>
+      <button class="pin-btn" onclick="saveCpmNewPin()" style="width:100%;margin-top:4px;">Save New PIN →</button>
+
+      <div class="pin-divider"></div>
+      <div class="pin-field-label">Auto-Lock Timeout</div>
+      <select class="pin-select" id="cpmAutoLock" style="margin-bottom:4px;">
+        <option value="0">Never (manual lock only)</option>
+        <option value="5">5 minutes of inactivity</option>
+        <option value="15">15 minutes of inactivity</option>
+        <option value="30">30 minutes of inactivity</option>
+        <option value="60">1 hour of inactivity</option>
+      </select>
+      <button class="pin-btn pin-btn-ghost" onclick="saveCpmAutoLock()" style="width:100%;margin-top:4px;">Save Timeout</button>
+    </div>
+  </div>
+</div>
+
 <div id="welcome-screen">
   <div class="ws-scanline"></div>
   <div class="ws-inner">
@@ -3384,7 +4022,7 @@ body.light-theme .ambient-aura-2 { opacity:0.045; }
     </button>
 
     <!-- A message from the Creator label -->
-    <div class="ws-from-creator">A message from the Creator:</div>
+    <div class="ws-from-creator"></div>
 
     <!-- ProctoAct Gantt Chart — NEW -->
     <div class="ws-new-badge" onclick="startApp();setTimeout(function(){switchView('gantt');},280);" title="Open ProctoAct Gantt Chart">
@@ -3473,6 +4111,12 @@ body.light-theme .ambient-aura-2 { opacity:0.045; }
         <div class="mopt-divider"></div>
         <button class="mopt-item" title="Change your display name" onclick="renameProfile();closeMoreOptions()">
           <span class="mopt-icon">&#128100;</span> Rename Profile
+        </button>
+        <button class="mopt-item" title="Change your security PIN" onclick="openChangePinModal();closeMoreOptions()">
+          <span class="mopt-icon">🔒</span> Change Security PIN
+        </button>
+        <button class="mopt-item" title="Lock app immediately" onclick="pinLockNow();closeMoreOptions()">
+          <span class="mopt-icon">🔐</span> Lock Now
         </button>
 
         <div class="mopt-divider"></div>
@@ -3770,7 +4414,7 @@ body.light-theme .ambient-aura-2 { opacity:0.045; }
 
     <!-- Version note -->
     <div style="padding:14px 28px;border-top:1px solid #e5e7eb;text-align:center;font-size:.72rem;color:#94a3b8;font-style:italic;">
-      ProctoAct Gantt Chart · Version 1.39 · All data stored locally in your browser
+      ProctoAct Gantt Chart · Version 1.40 · All data stored locally in your browser
     </div>
 
   </div>
@@ -4058,7 +4702,7 @@ body.light-theme .ambient-aura-2 { opacity:0.045; }
 
     <!-- Footer -->
     <div class="hm-footer">
-      <span class="hm-version-note">ProctoAct App Version 1.39</span>
+      <span class="hm-version-note">ProctoAct App Version 1.40</span>
       <button class="hm-print-btn" onclick="window.print()" title="Print or save as PDF">&#128438;&nbsp; Download / Print PDF</button>
       <button class="hm-gotit-btn" onclick="closeHelpModal()">&#10003;&nbsp; Got it, let's go!</button>
     </div>
@@ -4404,7 +5048,7 @@ self.addEventListener('fetch',e=>{
   try {
     const blob = new Blob([swSrc],{type:'application/javascript'});
     navigator.serviceWorker.register(URL.createObjectURL(blob),{scope:'./'})
-      .then(r=>console.log('[ProctoAct SW] Registered:',r.scope))
+      .then(r=>{})
       .catch(e=>console.info('[ProctoAct SW] Skipped (file:// or unsupported):',e.message));
   } catch(e){}
 })();
@@ -6658,6 +7302,512 @@ function startApp(){
   setTimeout(function(){ ws.style.display = 'none'; if(window.openWsPanel) openWsPanel(); }, 240);
 }
 
+// ════════════════════════════════════════════════════
+//  PIN LOCK — Security Layer
+// ════════════════════════════════════════════════════
+(function(){
+
+  /* ── Storage Keys ── */
+  const K_HASH   = 'proctoact_pin_hash';
+  const K_LEN    = 'proctoact_pin_len';
+  const K_Q      = 'proctoact_pin_question';
+  const K_A_HASH = 'proctoact_pin_answer_hash';
+  const K_SET    = 'proctoact_pin_set';
+  const SESSION  = 'proctoact_pin_session';
+
+  /* ── Simple hash (djb2-like, good enough for local PIN) ── */
+  function hashStr(s){
+    let h=5381;
+    for(let i=0;i<s.length;i++) h=((h<<5)+h)+s.charCodeAt(i)|0;
+    return h.toString(36);
+  }
+
+  /* ── State ── */
+  let setupPinLen   = 4;
+  let resetPinLen   = 4;
+  let cpmPinLen     = 4;
+
+  /* ── Eye toggle ── */
+  window.togglePinEye = function(inputId, btn){
+    const el = document.getElementById(inputId);
+    if(!el) return;
+    if(el.type==='password'){ el.type='text'; btn.textContent='🙈'; }
+    else { el.type='password'; btn.textContent='👁'; }
+  };
+
+  /* ── PIN length selectors ── */
+  window.selectPinLength = function(n){
+    setupPinLen = n;
+    document.getElementById('pinLen4').classList.toggle('selected', n===4);
+    document.getElementById('pinLen6').classList.toggle('selected', n===6);
+    const inp = document.getElementById('pinSetupInput');
+    const con = document.getElementById('pinSetupConfirm');
+    inp.maxLength = n; inp.value = '';
+    con.maxLength = n; con.value = '';
+    inp.placeholder = n===4 ? '● ● ● ●' : '● ● ● ● ● ●';
+    con.placeholder = n===4 ? '● ● ● ●' : '● ● ● ● ● ●';
+    document.getElementById('pinSetupError').textContent = '';
+  };
+  window.selectResetPinLength = function(n){
+    resetPinLen = n;
+    document.getElementById('pinResetLen4').classList.toggle('selected', n===4);
+    document.getElementById('pinResetLen6').classList.toggle('selected', n===6);
+    const inp = document.getElementById('pinResetInput');
+    const con = document.getElementById('pinResetConfirm');
+    inp.maxLength = n; inp.value = '';
+    con.maxLength = n; con.value = '';
+    inp.placeholder = n===4 ? '● ● ● ●' : '● ● ● ● ● ●';
+    con.placeholder = n===4 ? '● ● ● ●' : '● ● ● ● ● ●';
+  };
+  window.selectCpmLength = function(n){
+    cpmPinLen = n;
+    document.getElementById('cpmLen4').classList.toggle('selected', n===4);
+    document.getElementById('cpmLen6').classList.toggle('selected', n===6);
+    const inp = document.getElementById('cpmNewPin');
+    const con = document.getElementById('cpmConfirmPin');
+    inp.maxLength = n; inp.value = '';
+    con.maxLength = n; con.value = '';
+    inp.placeholder = n===4 ? 'New PIN (4 digits)' : 'New PIN (6 digits)';
+    con.placeholder = n===4 ? 'Confirm PIN (4 digits)' : 'Confirm PIN (6 digits)';
+  };
+
+  /* ── Dot indicators for unlock screen ── */
+  function buildDots(n){
+    const wrap = document.getElementById('pinUnlockDots');
+    if(!wrap) return;
+    wrap.innerHTML = '';
+    for(let i=0;i<n;i++){
+      const d = document.createElement('div');
+      d.className = 'pin-dot';
+      wrap.appendChild(d);
+    }
+  }
+  function updateDots(val){
+    const dots = document.querySelectorAll('#pinUnlockDots .pin-dot');
+    dots.forEach((d,i) => d.classList.toggle('filled', i < val.length));
+  }
+  function flashDotsError(){
+    document.querySelectorAll('#pinUnlockDots .pin-dot').forEach(d=>{
+      d.classList.add('error');
+      setTimeout(()=>d.classList.remove('error'),400);
+    });
+  }
+
+  /* ── Input live handlers ── */
+  window.pinSetupOnInput = function(){
+    const v = document.getElementById('pinSetupInput').value.replace(/\D/g,'');
+    document.getElementById('pinSetupInput').value = v;
+  };
+  window.pinUnlockOnInput = function(){
+    const el = document.getElementById('pinUnlockInput');
+    const v = el.value.replace(/\D/g,'');
+    el.value = v;
+    updateDots(v);
+    document.getElementById('pinUnlockError').textContent = '';
+    el.classList.remove('pin-error');
+    // Auto-submit when correct length reached
+    const len = parseInt(localStorage.getItem(K_LEN)||'4');
+    if(v.length === len) setTimeout(submitUnlockPin, 80);
+  };
+  window.pinResetOnInput = function(){
+    const v = document.getElementById('pinResetInput').value.replace(/\D/g,'');
+    document.getElementById('pinResetInput').value = v;
+  };
+  window.cpmNewPinOnInput = function(){
+    const v = document.getElementById('cpmNewPin').value.replace(/\D/g,'');
+    document.getElementById('cpmNewPin').value = v;
+  };
+
+  /* ── Show helpers ── */
+  function hideAllPinCards(){
+    ['pinSetupCard','pinUnlockCard','pinForgotCard','pinResetCard'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.style.display='none';
+    });
+  }
+  function showCard(id){
+    hideAllPinCards();
+    const el = document.getElementById(id);
+    if(el){ el.style.display='flex'; el.style.flexDirection='column'; el.style.alignItems='center'; }
+    // Always scroll back to the top so the logo is fully visible
+    const ls = document.getElementById('pinLockScreen');
+    if(ls) ls.scrollTop = 0;
+  }
+
+  /* ── Show the lock screen ── */
+  function showLockScreen(card){
+    const ls = document.getElementById('pinLockScreen');
+    if(!ls) return;
+    ls.classList.remove('pin-hidden');
+    showCard(card);
+  }
+  window.showUnlockScreen = function(){
+    const len = parseInt(localStorage.getItem(K_LEN)||'4');
+    buildDots(len);
+    const inp = document.getElementById('pinUnlockInput');
+    if(inp){ inp.maxLength=len; inp.value=''; inp.placeholder=len===4?'● ● ● ●':'● ● ● ● ● ●'; }
+    document.getElementById('pinUnlockError').textContent='';
+    showCard('pinUnlockCard');
+    setTimeout(()=>{ const i=document.getElementById('pinUnlockInput'); if(i) i.focus(); },120);
+  };
+
+  /* ── Hide lock screen and proceed to welcome screen ── */
+  function hideLockScreen(){
+    const ls = document.getElementById('pinLockScreen');
+    if(!ls) return;
+    ls.style.transition = 'opacity .22s ease, transform .22s ease';
+    ls.style.opacity = '0';
+    ls.style.transform = 'scale(.97)';
+    ls.style.pointerEvents = 'none';
+    setTimeout(()=>{ ls.classList.add('pin-hidden'); ls.style.opacity=''; ls.style.transform=''; ls.style.pointerEvents=''; }, 240);
+    sessionStorage.setItem(SESSION, '1');
+  }
+
+  /* ── Flash success on card ── */
+  function flashSuccess(flashId, cb){
+    const el = document.getElementById(flashId);
+    if(el){ el.classList.add('show'); setTimeout(()=>{ el.classList.remove('show'); if(cb) cb(); },400); }
+    else if(cb) cb();
+  }
+
+  /* ── SETUP PIN — confirm ── */
+  window.confirmSetupPin = function(){
+    const pin   = document.getElementById('pinSetupInput').value.replace(/\D/g,'');
+    const conf  = document.getElementById('pinSetupConfirm').value.replace(/\D/g,'');
+    const q     = document.getElementById('pinSecQuestion').value;
+    const a     = document.getElementById('pinSecAnswer').value.trim().toLowerCase();
+    const err   = document.getElementById('pinSetupError');
+    const len   = setupPinLen;
+
+    if(pin.length !== len){
+      err.textContent = `PIN must be exactly ${len} digits.`;
+      document.getElementById('pinSetupInput').classList.add('pin-error');
+      setTimeout(()=>document.getElementById('pinSetupInput').classList.remove('pin-error'),500);
+      return;
+    }
+    if(pin !== conf){
+      err.textContent = 'PINs do not match. Please try again.';
+      document.getElementById('pinSetupConfirm').classList.add('pin-error');
+      setTimeout(()=>document.getElementById('pinSetupConfirm').classList.remove('pin-error'),500);
+      return;
+    }
+    if(!q){ err.textContent = 'Please select a security question.'; return; }
+    if(a.length < 2){ err.textContent = 'Please provide an answer (at least 2 characters).'; return; }
+
+    err.textContent = '';
+    localStorage.setItem(K_HASH, hashStr(pin));
+    localStorage.setItem(K_LEN,  len);
+    localStorage.setItem(K_Q,    q);
+    localStorage.setItem(K_A_HASH, hashStr(a));
+    localStorage.setItem(K_SET,  '1');
+
+    flashSuccess('pinSetupFlash', function(){
+      hideLockScreen();
+      if(window.initSplash) initSplash();
+    });
+  };
+
+  /* ── UNLOCK PIN — submit ── */
+  window.submitUnlockPin = function(){
+    const inp = document.getElementById('pinUnlockInput');
+    const pin = inp.value.replace(/\D/g,'');
+    const err = document.getElementById('pinUnlockError');
+    const stored = localStorage.getItem(K_HASH);
+    const len  = parseInt(localStorage.getItem(K_LEN)||'4');
+
+    if(pin.length !== len){
+      err.textContent = `Enter your ${len}-digit PIN.`;
+      return;
+    }
+    if(hashStr(pin) === stored){
+      flashSuccess('pinUnlockFlash', function(){
+        hideLockScreen();
+        if(window.initSplash) initSplash();
+      });
+    } else {
+      err.textContent = 'Incorrect PIN. Please try again.';
+      inp.classList.add('pin-error');
+      inp.value = '';
+      updateDots('');
+      flashDotsError();
+      setTimeout(()=>{ inp.classList.remove('pin-error'); inp.focus(); },500);
+    }
+  };
+
+  /* ── FORGOT PIN — show ── */
+  window.showForgotPin = function(){
+    const q = localStorage.getItem(K_Q) || '(No question set)';
+    document.getElementById('pinForgotQuestion').textContent = '❓ ' + q;
+    document.getElementById('pinForgotAnswer').value = '';
+    document.getElementById('pinForgotError').textContent = '';
+    showCard('pinForgotCard');
+    setTimeout(()=>{ const i=document.getElementById('pinForgotAnswer'); if(i) i.focus(); },120);
+  };
+
+  /* ── FORGOT PIN — verify answer ── */
+  window.verifyForgotAnswer = function(){
+    const ans     = document.getElementById('pinForgotAnswer').value.trim().toLowerCase();
+    const stored  = localStorage.getItem(K_A_HASH);
+    const err     = document.getElementById('pinForgotError');
+    if(!ans){ err.textContent='Please enter your answer.'; return; }
+    if(hashStr(ans) === stored){
+      err.textContent = '';
+      // Show reset card
+      resetPinLen = parseInt(localStorage.getItem(K_LEN)||'4');
+      selectResetPinLength(resetPinLen);
+      document.getElementById('pinResetInput').value = '';
+      document.getElementById('pinResetConfirm').value = '';
+      document.getElementById('pinResetError').textContent = '';
+      document.getElementById('pinResetQuestion').value = '';
+      document.getElementById('pinResetAnswer').style.display = 'none';
+      document.getElementById('pinResetAnsLabel').style.display = 'none';
+      showCard('pinResetCard');
+      setTimeout(()=>{ const i=document.getElementById('pinResetInput'); if(i) i.focus(); },120);
+    } else {
+      err.textContent = 'Incorrect answer. Please try again.';
+      document.getElementById('pinForgotAnswer').classList.add('pin-error');
+      setTimeout(()=>document.getElementById('pinForgotAnswer').classList.remove('pin-error'),500);
+    }
+  };
+
+  /* ── RESET PIN — show/hide new answer field ── */
+  document.getElementById('pinResetQuestion').addEventListener('change', function(){
+    const show = !!this.value;
+    document.getElementById('pinResetAnswer').style.display  = show ? 'block' : 'none';
+    document.getElementById('pinResetAnsLabel').style.display = show ? 'block' : 'none';
+    if(show) setTimeout(()=>document.getElementById('pinResetAnswer').focus(),80);
+  });
+
+  /* ── RESET PIN — confirm ── */
+  window.confirmResetPin = function(){
+    const pin   = document.getElementById('pinResetInput').value.replace(/\D/g,'');
+    const conf  = document.getElementById('pinResetConfirm').value.replace(/\D/g,'');
+    const newQ  = document.getElementById('pinResetQuestion').value;
+    const newA  = document.getElementById('pinResetAnswer').value.trim().toLowerCase();
+    const err   = document.getElementById('pinResetError');
+    const len   = resetPinLen;
+
+    if(pin.length !== len){ err.textContent=`PIN must be exactly ${len} digits.`; return; }
+    if(pin !== conf){ err.textContent='PINs do not match.'; return; }
+    if(newQ && newA.length < 2){ err.textContent='Please provide an answer for the new question.'; return; }
+
+    localStorage.setItem(K_HASH, hashStr(pin));
+    localStorage.setItem(K_LEN, len);
+    if(newQ){
+      localStorage.setItem(K_Q, newQ);
+      localStorage.setItem(K_A_HASH, hashStr(newA));
+    }
+
+    flashSuccess('pinResetFlash', function(){
+      hideLockScreen();
+      if(window.initSplash) initSplash();
+      if(window.showToast) showToast('PIN updated successfully!','green');
+    });
+  };
+
+  /* ── CHANGE PIN MODAL (from More Options menu) ── */
+  window.openChangePinModal = function(){
+    if(!localStorage.getItem(K_SET)){
+      // No PIN set yet — open setup flow instead
+      showSetupScreen();
+      return;
+    }
+    // Reset modal to step 1
+    document.getElementById('cpmStep1').style.display = 'block';
+    document.getElementById('cpmStep2').style.display = 'none';
+    document.getElementById('cpmOldPin').value = '';
+    document.getElementById('cpmStep1Error').textContent = '';
+    document.getElementById('changePinModal').classList.add('open');
+    setTimeout(()=>{ const i=document.getElementById('cpmOldPin'); if(i) i.focus(); },120);
+  };
+  window.closeChangePinModal = function(){
+    document.getElementById('changePinModal').classList.remove('open');
+  };
+  document.getElementById('changePinModal').addEventListener('click', function(e){
+    if(e.target===this) closeChangePinModal();
+  });
+
+  window.verifyCpmOldPin = function(){
+    const pin    = document.getElementById('cpmOldPin').value.replace(/\D/g,'');
+    const stored = localStorage.getItem(K_HASH);
+    const err    = document.getElementById('cpmStep1Error');
+    if(!pin){ err.textContent='Please enter your current PIN.'; return; }
+    if(hashStr(pin) !== stored){
+      err.textContent='Incorrect PIN. Please try again.';
+      document.getElementById('cpmOldPin').classList.add('pin-error');
+      setTimeout(()=>document.getElementById('cpmOldPin').classList.remove('pin-error'),500);
+      return;
+    }
+    // Advance to step 2
+    err.textContent='';
+    cpmPinLen = parseInt(localStorage.getItem(K_LEN)||'4');
+    selectCpmLength(cpmPinLen);
+    document.getElementById('cpmNewPin').value = '';
+    document.getElementById('cpmConfirmPin').value = '';
+    document.getElementById('cpmStep2Error').textContent = '';
+    document.getElementById('cpmQuestion').value = '';
+    document.getElementById('cpmAnswer').style.display = 'none';
+    document.getElementById('cpmStep1').style.display = 'none';
+    document.getElementById('cpmStep2').style.display = 'block';
+    setTimeout(()=>{ const i=document.getElementById('cpmNewPin'); if(i) i.focus(); },80);
+  };
+
+  window.cpmQuestionChanged = function(){
+    const val = document.getElementById('cpmQuestion').value;
+    const ans = document.getElementById('cpmAnswer');
+    ans.style.display = val ? 'block' : 'none';
+    if(val) setTimeout(()=>ans.focus(),80);
+  };
+
+  window.saveCpmNewPin = function(){
+    const pin   = document.getElementById('cpmNewPin').value.replace(/\D/g,'');
+    const conf  = document.getElementById('cpmConfirmPin').value.replace(/\D/g,'');
+    const newQ  = document.getElementById('cpmQuestion').value;
+    const newA  = document.getElementById('cpmAnswer').value.trim().toLowerCase();
+    const err   = document.getElementById('cpmStep2Error');
+    const len   = cpmPinLen;
+
+    if(pin.length !== len){ err.textContent=`PIN must be exactly ${len} digits.`; return; }
+    if(pin !== conf){ err.textContent='PINs do not match.'; return; }
+    if(newQ && newA.length < 2){ err.textContent='Please provide an answer for the new question.'; return; }
+
+    localStorage.setItem(K_HASH, hashStr(pin));
+    localStorage.setItem(K_LEN, len);
+    if(newQ){
+      localStorage.setItem(K_Q, newQ);
+      localStorage.setItem(K_A_HASH, hashStr(newA));
+    }
+
+    closeChangePinModal();
+    if(window.showToast) showToast('Security PIN updated!','green');
+  };
+
+  /* ── Show setup screen (first time or no PIN) ── */
+  function showSetupScreen(){
+    const ls = document.getElementById('pinLockScreen');
+    if(ls) ls.classList.remove('pin-hidden');
+    setupPinLen = 4;
+    selectPinLength(4);
+    document.getElementById('pinSetupInput').value = '';
+    document.getElementById('pinSetupConfirm').value = '';
+    document.getElementById('pinSecQuestion').value = '';
+    document.getElementById('pinSecAnswer').value = '';
+    document.getElementById('pinSetupError').textContent = '';
+    showCard('pinSetupCard');
+    setTimeout(()=>{ const i=document.getElementById('pinSetupInput'); if(i) i.focus(); },120);
+  }
+
+  /* ── INIT: decide what to show ── */
+  function pinInit(){
+    // Use splashLogo as the source — it's always in the DOM before the app starts
+    // and has the same base64 src as brandLogo
+    var logoSrc = '';
+    var sl = document.getElementById('splashLogo');
+    var bl = document.getElementById('brandLogo');
+    if(sl && sl.src) logoSrc = sl.src;
+    else if(bl && bl.src) logoSrc = bl.src;
+
+    if(logoSrc){
+      ['pinSetupLogo','pinUnlockLogo','pinForgotLogo','pinResetLogo'].forEach(function(id){
+        var el = document.getElementById(id);
+        if(el) el.src = logoSrc;
+      });
+    }
+
+    const hasPIN = localStorage.getItem(K_SET);
+    const sessionOk = sessionStorage.getItem(SESSION);
+
+    if(sessionOk){
+      // Already unlocked this session — hide lock screen, proceed normally
+      document.getElementById('pinLockScreen').classList.add('pin-hidden');
+      return;
+    }
+    if(!hasPIN){
+      // First time — show PIN setup
+      showSetupScreen();
+    } else {
+      // Returning user — show unlock screen
+      showLockScreen('dummy'); // show screen first
+      showUnlockScreen();
+    }
+  }
+
+  /* Run after DOM is ready */
+  pinInit();
+
+  window.saveCpmAutoLock = function(){
+    const sel = document.getElementById('cpmAutoLock');
+    if(!sel) return;
+    localStorage.setItem('proctoact_pin_autolock', sel.value);
+    closeChangePinModal();
+    if(window.showToast) showToast('Auto-lock timeout saved!','green');
+    pinAutoLockSetup();
+  };
+
+  /* ── AUTO-LOCK SYSTEM ── */
+  const K_AUTOLOCK = 'proctoact_pin_autolock';
+  let _alTimer = null;
+
+  function pinAutoLockSetup(){
+    clearTimeout(_alTimer);
+    const mins = parseInt(localStorage.getItem(K_AUTOLOCK)||'0');
+    if(!mins || !localStorage.getItem(K_SET)) return;
+    const ms = mins * 60 * 1000;
+    function resetTimer(){
+      clearTimeout(_alTimer);
+      _alTimer = setTimeout(function(){
+        // Only lock if the app is not on the pin screen already
+        const ls = document.getElementById('pinLockScreen');
+        if(ls && ls.classList.contains('pin-hidden')){
+          sessionStorage.removeItem(SESSION);
+          ls.classList.remove('pin-hidden');
+          ls.style.opacity='';ls.style.transform='';ls.style.pointerEvents='';
+          showUnlockScreen();
+        }
+      }, ms);
+    }
+    ['mousemove','mousedown','keydown','touchstart','scroll'].forEach(function(ev){
+      document.removeEventListener(ev, resetTimer, true);
+      document.addEventListener(ev, resetTimer, true);
+    });
+    resetTimer();
+  }
+
+  /* ── MANUAL LOCK (from More Options menu) ── */
+  window.pinLockNow = function(){
+    if(!localStorage.getItem(K_SET)){ showToast('No PIN set — go to Change Security PIN first','amber'); return; }
+    sessionStorage.removeItem(SESSION);
+    const ls = document.getElementById('pinLockScreen');
+    if(ls){
+      ls.classList.remove('pin-hidden');
+      ls.style.opacity='';ls.style.transform='';ls.style.pointerEvents='';
+      showUnlockScreen();
+    }
+  };
+
+  /* ── Populate auto-lock select when modal opens ── */
+  const _origOpenChangePinModal = window.openChangePinModal;
+  window.openChangePinModal = function(){
+    _origOpenChangePinModal && _origOpenChangePinModal();
+    setTimeout(function(){
+      const sel = document.getElementById('cpmAutoLock');
+      if(sel) sel.value = localStorage.getItem(K_AUTOLOCK)||'0';
+    }, 50);
+  };
+
+  /* Start auto-lock on page load if configured */
+  pinAutoLockSetup();
+  const _origInitSplash = window.initSplash;
+  window.initSplash = function(){
+    // If lock screen is still visible (not session-unlocked), don't init splash yet
+    const ls = document.getElementById('pinLockScreen');
+    if(ls && !ls.classList.contains('pin-hidden')) return;
+    if(_origInitSplash) _origInitSplash();
+  };
+
+})();
+
+/* initSplash is called by the PIN IIFE after unlock, or directly here if already unlocked this session */
 initSplash();
 loadTasks();
 loadBin();
@@ -6732,7 +7882,7 @@ renderGantt();
     Made for everyone who knows the creator
   </div>
   <div style="font-size: 0.75rem; color: var(--txt-3); font-style: italic; margin-bottom: 0;">
-    Version 1.39
+    Version 1.40
   </div>
 </footer>
 
@@ -6986,7 +8136,7 @@ renderGantt();
     </div>
 
     <div class="pn-view-actions">
-      <div class="pn-view-status" id="pnSavedLbl">&#10003; Saved</div>
+      <div class="pn-view-status" id="pnViewSavedLbl">&#10003; Saved</div>
       <!-- Greeting -->
       <div class="pn-hdr-greeting" id="pnHdrGreeting" style="display:none"></div>
       <button class="pn-btn-bin-hdr" id="pnBinBtn" onclick="pnToggleBin()" title="Recycle Bin" style="position:relative;padding:7px 12px;min-width:0;"><svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:block;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg><span id="pnBinBadge" style="display:none;position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;background:#ef4444;color:#fff;border-radius:9999px;font-size:.6rem;font-weight:900;align-items:center;justify-content:center;padding:0 4px;line-height:1;"></span></button>
@@ -7112,7 +8262,7 @@ renderGantt();
             <div class="pn-footer-brand">&copy; 2026 ProctoAct App &bull; proctoactapp.com</div>
             <div class="pn-footer-tag">Projects, To-Dos &amp; Actions</div>
             <div class="pn-footer-sub">Made for everyone who knows the creator</div>
-            <div class="pn-footer-sub">Version 1.39</div>
+            <div class="pn-footer-sub">Version 1.40</div>
           </div>
         </div>
       </div>
@@ -7209,7 +8359,7 @@ renderGantt();
         <div class="hm-section">
           <div class="hm-section-title">
             <div class="hm-sec-icon" style="background:rgba(14,165,233,.15);border-color:rgba(14,165,233,.3);color:var(--sky)">&#128221;</div>
-            <h3>What is ProctoAct Note?</h3>
+            <h3>Section 1 - What is ProctoAct Note?</h3>
           </div>
           <div class="hm-item">
             <span class="hm-dot dot-sky"></span>
@@ -7230,7 +8380,7 @@ renderGantt();
         <div class="hm-section">
           <div class="hm-section-title">
             <div class="hm-sec-icon" style="background:rgba(52,211,153,.15);border-color:rgba(52,211,153,.3);color:#34d399">&#128196;</div>
-            <h3>Creating &amp; Managing Notes</h3>
+            <h3>Section 2 - Creating &amp; Managing Notes</h3>
           </div>
           <div class="hm-item">
             <span class="hm-dot dot-green"></span>
@@ -7264,7 +8414,7 @@ renderGantt();
         <div class="hm-section">
           <div class="hm-section-title">
             <div class="hm-sec-icon" style="background:rgba(167,139,250,.15);border-color:rgba(167,139,250,.3);color:#a78bfa">&#128190;</div>
-            <h3>Saving, Navigation &amp; Recycle Bin</h3>
+            <h3>Section 3 - Saving, Navigation &amp; Recycle Bin</h3>
           </div>
           <div class="hm-item">
             <span class="hm-dot dot-green"></span>
@@ -7352,6 +8502,7 @@ renderGantt();
     <div class="pfc2-sep"></div>
     <button class="pfc2-btn pfc2-save"  onclick="pfcSaveProject()" title="Save (Ctrl+S)">&#128190; Save</button>
     <button class="pfc2-btn pfc2-clear" onclick="pfcClearCanvas()" title="Clear canvas">&#128465; Clear</button>
+    <button class="pfc2-btn" onclick="pfcExportPNG()" title="Export as PNG image" style="color:#38bdf8;border-color:rgba(56,189,248,.35);">&#128247; Export PNG</button>
     <span class="pfc2-status" id="pfcStatus"></span>
   </div>
 
@@ -7390,7 +8541,7 @@ renderGantt();
         <div class="pn-footer-brand">&copy; 2026 ProctoAct App &bull; proctoactapp.com</div>
         <div class="pn-footer-tag">Projects, To-Dos &amp; Actions</div>
         <div class="pn-footer-sub">Made for everyone who knows the creator</div>
-        <div class="pn-footer-sub">Version 1.39</div>
+        <div class="pn-footer-sub">Version 1.40</div>
       </div>
     </div>
   </div>
@@ -7621,6 +8772,12 @@ renderGantt();
         <textarea id="gm_tmRemarks" rows="2" placeholder="Notes, dependencies, blockers..."
           class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm resize-none"></textarea>
       </div>
+      <div class="col-span-2">
+        <label class="block text-sm font-semibold text-gray-700 mb-1.5">⛓ Depends On <span style="font-weight:400;color:#9ca3af">(predecessor task)</span></label>
+        <select id="gm_tmPredecessor" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm">
+          <option value="">— None —</option>
+        </select>
+      </div>
     </div>
 
     <div class="flex justify-end gap-3 mt-6">
@@ -7803,7 +8960,7 @@ renderGantt();
       </div>
     </div>
     <div class="ws-panel-footer">
-      ProctoAct · Version 1.39
+      ProctoAct · Version 1.40
     </div>
 
   </div>
@@ -7832,6 +8989,16 @@ renderGantt();
       <button class="wsp-modal-item" onclick="wspCloseMore();renameProfile()">
         <span class="wsp-modal-icon">&#128100;</span>
         <div class="wsp-modal-text"><strong>Rename Profile</strong><span>Change your display name</span></div>
+        <span class="wsp-modal-arr">&#8250;</span>
+      </button>
+      <button class="wsp-modal-item" onclick="wspCloseMore();openChangePinModal()">
+        <span class="wsp-modal-icon">🔒</span>
+        <div class="wsp-modal-text"><strong>Change Security PIN</strong><span>Update PIN &amp; auto-lock settings</span></div>
+        <span class="wsp-modal-arr">&#8250;</span>
+      </button>
+      <button class="wsp-modal-item" onclick="wspCloseMore();pinLockNow()">
+        <span class="wsp-modal-icon">🔐</span>
+        <div class="wsp-modal-text"><strong>Lock Now</strong><span>Lock app immediately</span></div>
         <span class="wsp-modal-arr">&#8250;</span>
       </button>
       <div style="height:1px;background:var(--brd);margin:4px 0;"></div>
@@ -7873,12 +9040,179 @@ renderGantt();
         <div class="wsp-modal-text"><strong>My ProctoAct Gantt Chart</strong><span>Project timelines &amp; WBS</span></div>
         <span class="wsp-modal-arr">&#8250;</span>
       </button>
+      <div style="height:1px;background:var(--brd);margin:4px 0;"></div>
+      <button class="wsp-modal-item" onclick="wspOpenHelp('general')">
+        <span class="wsp-modal-icon">⚙️</span>
+        <div class="wsp-modal-text"><strong>General Guide</strong><span>PIN, workspace, profile &amp; settings</span></div>
+        <span class="wsp-modal-arr">&#8250;</span>
+      </button>
     </div>
   </div>
 </div>
 
 <!-- Backdrop (click-outside to close) -->
 <div id="ws-backdrop" class="ws-backdrop" onclick="closeWsPanel()"></div>
+
+<!-- ── General Guide Modal ── -->
+<div id="wspGeneralGuideModal" style="display:none;position:fixed;inset:0;z-index:10700;background:rgba(0,0,0,.55);backdrop-filter:blur(5px);align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)wspCloseGeneralGuide()">
+  <div style="background:var(--surface-1);border:1px solid var(--brd-2);border-radius:20px;width:100%;max-width:480px;max-height:88vh;overflow:hidden;box-shadow:0 28px 70px rgba(0,0,0,.55);display:flex;flex-direction:column;">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--brd);background:linear-gradient(135deg,rgba(56,189,248,.08),rgba(99,102,241,.06));flex-shrink:0;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:1.3rem;">⚙️</span>
+        <span style="font-size:.98rem;font-weight:800;color:var(--txt-1);">General Guide</span>
+      </div>
+      <button onclick="wspCloseGeneralGuide()" style="background:none;border:none;color:var(--txt-3);font-size:1.15rem;cursor:pointer;padding:4px 8px;border-radius:6px;line-height:1;">&#10005;</button>
+    </div>
+
+    <!-- Scrollable body -->
+    <div style="overflow-y:auto;padding:18px 22px 24px;display:flex;flex-direction:column;gap:20px;">
+
+      <!-- Section: Security PIN -->
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <span style="font-size:1.1rem;">🔒</span>
+          <span style="font-size:.82rem;font-weight:800;color:var(--sky);text-transform:uppercase;letter-spacing:.06em;">Security PIN</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="background:var(--surface-2);border:1px solid var(--brd);border-radius:10px;padding:11px 14px;">
+            <div style="font-size:.78rem;font-weight:700;color:var(--txt-1);margin-bottom:3px;">Setting up your PIN</div>
+            <div style="font-size:.74rem;color:var(--txt-2);line-height:1.55;">On first launch, you are prompted to create a 4 or 6-digit PIN. Choose a PIN length, enter it twice to confirm, then select a security question and provide an answer. This answer is used to recover access if you forget your PIN.</div>
+          </div>
+          <div style="background:var(--surface-2);border:1px solid var(--brd);border-radius:10px;padding:11px 14px;">
+            <div style="font-size:.78rem;font-weight:700;color:var(--txt-1);margin-bottom:3px;">Unlocking the app</div>
+            <div style="font-size:.74rem;color:var(--txt-2);line-height:1.55;">Each time you open ProctoAct in a new browser session, you will see the PIN entry screen. Enter your PIN — the app auto-submits once the correct length is reached. The unlock persists for the entire browser session so you won't be asked again on page refresh.</div>
+          </div>
+          <div style="background:var(--surface-2);border:1px solid var(--brd);border-radius:10px;padding:11px 14px;">
+            <div style="font-size:.78rem;font-weight:700;color:var(--txt-1);margin-bottom:3px;">Forgot PIN?</div>
+            <div style="font-size:.74rem;color:var(--txt-2);line-height:1.55;">On the unlock screen, tap <strong style="color:var(--txt-1);">Forgot PIN?</strong> → answer your security question → set a new PIN. You can also update your security question at this step.</div>
+          </div>
+          <div style="background:var(--surface-2);border:1px solid var(--brd);border-radius:10px;padding:11px 14px;">
+            <div style="font-size:.78rem;font-weight:700;color:var(--txt-1);margin-bottom:3px;">Changing your PIN &amp; auto-lock</div>
+            <div style="font-size:.74rem;color:var(--txt-2);line-height:1.55;">Go to <strong style="color:var(--txt-1);">More Options → Change Security PIN</strong>. Enter your current PIN to verify, then set a new PIN and optionally a new security question. You can also configure an <strong style="color:var(--txt-1);">Auto-Lock timeout</strong> (5 / 15 / 30 min / 1 hour) — the app will lock itself after that period of inactivity.</div>
+          </div>
+          <div style="background:var(--surface-2);border:1px solid var(--brd);border-radius:10px;padding:11px 14px;">
+            <div style="font-size:.78rem;font-weight:700;color:var(--txt-1);margin-bottom:3px;">Lock Now</div>
+            <div style="font-size:.74rem;color:var(--txt-2);line-height:1.55;">Tap <strong style="color:var(--txt-1);">More Options → 🔐 Lock Now</strong> to instantly lock the app and return to the PIN screen — useful when stepping away from your device.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div style="height:1px;background:var(--brd);"></div>
+
+      <!-- Section: Workspace Switcher -->
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <span style="font-size:1.1rem;">🗂️</span>
+          <span style="font-size:.82rem;font-weight:800;color:var(--sky);text-transform:uppercase;letter-spacing:.06em;">Workspace Switcher</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="background:var(--surface-2);border:1px solid var(--brd);border-radius:10px;padding:11px 14px;">
+            <div style="font-size:.78rem;font-weight:700;color:var(--txt-1);margin-bottom:3px;">Opening the workspace panel</div>
+            <div style="font-size:.74rem;color:var(--txt-2);line-height:1.55;">Click the <strong style="color:var(--txt-1);">VIEWS</strong> tab on the right edge of the screen (or tap the handle icon) to open the workspace panel. It shows your profile, stats, and quick links to all four workspaces.</div>
+          </div>
+          <div style="background:var(--surface-2);border:1px solid var(--brd);border-radius:10px;padding:11px 14px;">
+            <div style="font-size:.78rem;font-weight:700;color:var(--txt-1);margin-bottom:3px;">Switching between workspaces</div>
+            <div style="font-size:.74rem;color:var(--txt-2);line-height:1.55;">Use the navigation buttons inside the panel to switch between: <strong style="color:var(--txt-1);">App</strong> (tasks &amp; projects), <strong style="color:var(--txt-1);">Note</strong> (document hub), <strong style="color:var(--txt-1);">Flow Chart</strong> (process maps), and <strong style="color:var(--txt-1);">Gantt Chart</strong> (project timelines). A ✓ indicator shows the active workspace.</div>
+          </div>
+          <div style="background:var(--surface-2);border:1px solid var(--brd);border-radius:10px;padding:11px 14px;">
+            <div style="font-size:.78rem;font-weight:700;color:var(--txt-1);margin-bottom:3px;">Daily streak &amp; stats</div>
+            <div style="font-size:.74rem;color:var(--txt-2);line-height:1.55;">The panel shows your current task counts (active, notes, projects) and a daily usage streak. The streak increments each day you open and use ProctoAct.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div style="height:1px;background:var(--brd);"></div>
+
+      <!-- Section: Profile & Settings -->
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <span style="font-size:1.1rem;">👤</span>
+          <span style="font-size:.82rem;font-weight:800;color:var(--sky);text-transform:uppercase;letter-spacing:.06em;">Profile &amp; Settings</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="background:var(--surface-2);border:1px solid var(--brd);border-radius:10px;padding:11px 14px;">
+            <div style="font-size:.78rem;font-weight:700;color:var(--txt-1);margin-bottom:3px;">Rename profile</div>
+            <div style="font-size:.74rem;color:var(--txt-2);line-height:1.55;">Tap <strong style="color:var(--txt-1);">More Options → Rename Profile</strong>, or click your name in the workspace panel to edit it inline. Your name is stored locally and shown in greetings and reports.</div>
+          </div>
+          <div style="background:var(--surface-2);border:1px solid var(--brd);border-radius:10px;padding:11px 14px;">
+            <div style="font-size:.78rem;font-weight:700;color:var(--txt-1);margin-bottom:3px;">Avatar</div>
+            <div style="font-size:.74rem;color:var(--txt-2);line-height:1.55;">Click your avatar in the workspace panel to choose from the built-in avatar library. Your selection is saved locally.</div>
+          </div>
+          <div style="background:var(--surface-2);border:1px solid var(--brd);border-radius:10px;padding:11px 14px;">
+            <div style="font-size:.78rem;font-weight:700;color:var(--txt-1);margin-bottom:3px;">Dark / Light theme</div>
+            <div style="font-size:.74rem;color:var(--txt-2);line-height:1.55;">Toggle between dark and light mode via <strong style="color:var(--txt-1);">More Options → Switch Theme</strong>. Your preference is saved and restored on next visit.</div>
+          </div>
+          <div style="background:var(--surface-2);border:1px solid var(--brd);border-radius:10px;padding:11px 14px;">
+            <div style="font-size:.78rem;font-weight:700;color:var(--txt-1);margin-bottom:3px;">Export &amp; Import backup</div>
+            <div style="font-size:.74rem;color:var(--txt-2);line-height:1.55;"><strong style="color:var(--txt-1);">Export Backup</strong> downloads all your tasks as a JSON file — keep this as a safety copy. <strong style="color:var(--txt-1);">Import Backup</strong> restores tasks from a previously exported file. All data is stored in your browser's localStorage — clearing browser data will erase it, so export regularly.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div style="height:1px;background:var(--brd);"></div>
+
+      <!-- Section: Keyboard Shortcuts -->
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <span style="font-size:1.1rem;">⌨️</span>
+          <span style="font-size:.82rem;font-weight:800;color:var(--sky);text-transform:uppercase;letter-spacing:.06em;">Keyboard Shortcuts</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <div style="background:var(--surface-2);border:1px solid var(--brd);border-radius:8px;padding:9px 12px;">
+            <kbd style="font-size:.7rem;font-weight:800;color:var(--sky);background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.2);border-radius:4px;padding:1px 5px;">Ctrl+K</kbd>
+            <div style="font-size:.72rem;color:var(--txt-2);margin-top:4px;">Open command palette</div>
+          </div>
+          <div style="background:var(--surface-2);border:1px solid var(--brd);border-radius:8px;padding:9px 12px;">
+            <kbd style="font-size:.7rem;font-weight:800;color:var(--sky);background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.2);border-radius:4px;padding:1px 5px;">N</kbd>
+            <div style="font-size:.72rem;color:var(--txt-2);margin-top:4px;">New task (App view)</div>
+          </div>
+          <div style="background:var(--surface-2);border:1px solid var(--brd);border-radius:8px;padding:9px 12px;">
+            <kbd style="font-size:.7rem;font-weight:800;color:var(--sky);background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.2);border-radius:4px;padding:1px 5px;">F</kbd>
+            <div style="font-size:.72rem;color:var(--txt-2);margin-top:4px;">Focus search bar</div>
+          </div>
+          <div style="background:var(--surface-2);border:1px solid var(--brd);border-radius:8px;padding:9px 12px;">
+            <kbd style="font-size:.7rem;font-weight:800;color:var(--sky);background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.2);border-radius:4px;padding:1px 5px;">Esc</kbd>
+            <div style="font-size:.72rem;color:var(--txt-2);margin-top:4px;">Close any modal</div>
+          </div>
+          <div style="background:var(--surface-2);border:1px solid var(--brd);border-radius:8px;padding:9px 12px;">
+            <kbd style="font-size:.7rem;font-weight:800;color:var(--sky);background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.2);border-radius:4px;padding:1px 5px;">Ctrl+S</kbd>
+            <div style="font-size:.72rem;color:var(--txt-2);margin-top:4px;">Save active note</div>
+          </div>
+          <div style="background:var(--surface-2);border:1px solid var(--brd);border-radius:8px;padding:9px 12px;">
+            <kbd style="font-size:.7rem;font-weight:800;color:var(--sky);background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.2);border-radius:4px;padding:1px 5px;">Ctrl+S</kbd>
+            <div style="font-size:.72rem;color:var(--txt-2);margin-top:4px;">Save flow chart</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div style="height:1px;background:var(--brd);"></div>
+
+      <!-- Section: Data & Privacy -->
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <span style="font-size:1.1rem;">🔐</span>
+          <span style="font-size:.82rem;font-weight:800;color:var(--sky);text-transform:uppercase;letter-spacing:.06em;">Data &amp; Privacy</span>
+        </div>
+        <div style="background:var(--surface-2);border:1px solid var(--brd);border-radius:10px;padding:11px 14px;">
+          <div style="font-size:.74rem;color:var(--txt-2);line-height:1.6;">All ProctoAct data — tasks, notes, flow charts, Gantt projects, your name, avatar, and PIN — is stored <strong style="color:var(--txt-1);">entirely in your browser's localStorage</strong>. Nothing is sent to any server. This means your data is private, works offline, but is tied to this browser. Use <strong style="color:var(--txt-1);">Export Backup</strong> regularly to avoid data loss.</div>
+        </div>
+      </div>
+
+    </div><!-- /scrollable body -->
+
+    <!-- Footer -->
+    <div style="flex-shrink:0;border-top:1px solid var(--brd);padding:12px 22px;display:flex;justify-content:flex-end;">
+      <button onclick="wspCloseGeneralGuide()" style="background:linear-gradient(135deg,#38bdf8,#0ea5e9);border:none;border-radius:9px;color:#fff;font-size:.82rem;font-weight:700;padding:9px 22px;cursor:pointer;box-shadow:0 3px 12px rgba(56,189,248,.3);">Got it ✓</button>
+    </div>
+
+  </div>
+</div>
 
 <!-- ══════════════════════════════════════════════
      WORKSPACE SWITCHER — Styles
@@ -8995,10 +10329,18 @@ window.wspRefresh=function(){var name=localStorage.getItem('proctoUserName')||'F
   };
   // Esc closes modals
   document.addEventListener('keydown', function(e){
-    if(e.key==='Escape'){ wspCloseMore(); wspCloseHelp(); }
+    if(e.key==='Escape'){ wspCloseMore(); wspCloseHelp(); wspCloseGeneralGuide(); }
   });
   window.wspOpenHelp = function(which){
     wspCloseHelp();
+    if(which==='general'){
+      closeWsPanel();
+      setTimeout(function(){
+        var m=document.getElementById('wspGeneralGuideModal');
+        if(m) m.style.display='flex';
+      }, 280);
+      return;
+    }
     closeWsPanel();
     setTimeout(function(){
       if(which==='app')   { switchView('app');  setTimeout(openHelpModal, 120); }
@@ -9006,6 +10348,11 @@ window.wspRefresh=function(){var name=localStorage.getItem('proctoUserName')||'F
       if(which==='flow')  { switchView('flow'); setTimeout(pfcOpenHelp, 120); }
       if(which==='gantt') { switchView('gantt'); setTimeout(openGanttHelp, 120); }
     }, 250);
+  };
+
+  window.wspCloseGeneralGuide = function(){
+    var m=document.getElementById('wspGeneralGuideModal');
+    if(m) m.style.display='none';
   };
   window.wspOpenEdit=function(){var name=localStorage.getItem('proctoUserName')||'';var row=document.getElementById('wspEditRow'),inp=document.getElementById('wspEditInput'),prof=document.getElementById('wspProfile');if(inp)inp.value=name;if(row)row.style.display='flex';if(prof)prof.style.display='none';if(_wspClockTimer){clearInterval(_wspClockTimer);_wspClockTimer=null;}if(inp)setTimeout(function(){inp.focus();inp.select();},50);};
   window.wspSaveName=function(){var inp=document.getElementById('wspEditInput');var val=(inp?inp.value.trim():'')||'Friend';localStorage.setItem('proctoUserName',val);wspCancelEdit();wspRefresh();if(window.updateHdrGreeting)updateHdrGreeting();};
@@ -9075,7 +10422,7 @@ window.wspRefresh=function(){var name=localStorage.getItem('proctoUserName')||'F
   }
   function pnSave(){
     localStorage.setItem(NOTES_KEY, JSON.stringify(_notes));
-    var lbl=document.getElementById('pnSavedLbl');
+    var lbl=document.getElementById('pnSavedLbl')||document.getElementById('pnViewSavedLbl');
     if(lbl){ lbl.classList.add('visible'); clearTimeout(lbl._t); lbl._t=setTimeout(function(){ lbl.classList.remove('visible'); },1800); }
   }
 
@@ -9651,19 +10998,19 @@ window.pnManualSave = function(){
     <div class="hm-body">
 
       <div class="hm-section">
-        <div class="hm-section-title"><div class="hm-sec-icon" style="background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.3);color:#10b981">&#9638;</div><h3>What is My ProctoAct Flow Chart?</h3></div>
+        <div class="hm-section-title"><div class="hm-sec-icon" style="background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.3);color:#10b981">&#9638;</div><h3>Section 1 - What is My ProctoAct Flow Chart?</h3></div>
         <div class="hm-item"><span class="hm-dot dot-green"></span><div class="hm-item-body"><div class="hm-item-title">Overview</div><div class="hm-item-desc">A dedicated <strong>Visual Workflow Mapping</strong> workspace — a fullscreen canvas to create and manage professional flowcharts across multiple named projects, each saved independently in your browser.</div></div></div>
         <div class="hm-item"><span class="hm-dot dot-sky"></span><div class="hm-item-body"><div class="hm-item-title">Accessing It</div><div class="hm-item-desc">Click the <strong style="color:var(--sky)">&#9776; VIEWS</strong> tab on the right edge of the screen. In the Workspace Switcher, click <strong>&#9638; My ProctoAct Flow Chart</strong>. Press <kbd class="hm-kbd">Esc</kbd> to close the switcher.</div></div></div>
       </div>
 
       <div class="hm-section">
-        <div class="hm-section-title"><div class="hm-sec-icon" style="background:rgba(139,92,246,.15);border-color:rgba(139,92,246,.3);color:#a78bfa">&#128193;</div><h3>Projects</h3></div>
+        <div class="hm-section-title"><div class="hm-sec-icon" style="background:rgba(139,92,246,.15);border-color:rgba(139,92,246,.3);color:#a78bfa">&#128193;</div><h3>Section 2 - Projects</h3></div>
         <div class="hm-item"><span class="hm-dot dot-purple"></span><div class="hm-item-body"><div class="hm-item-title">Creating a Project</div><div class="hm-item-desc">Click <strong style="color:#10b981">&#43; New Project</strong> in the left sidebar. Enter a name (e.g. <em>"Onboarding Flow"</em>) and click <strong>Create Project &rarr;</strong>. Projects appear in the left sidebar — click any to switch to it.</div></div></div>
         <div class="hm-item"><span class="hm-dot dot-sky"></span><div class="hm-item-body"><div class="hm-item-title">Dual-Pane Layout</div><div class="hm-item-desc">The <strong>left sidebar</strong> lists all your projects with node and arrow counts. Hover a card to reveal <strong>&#9998; Rename</strong> and <strong>&#128465; Delete</strong> buttons. The <strong>right area</strong> is your active drawing canvas with a dot-grid background.</div></div></div>
       </div>
 
       <div class="hm-section">
-        <div class="hm-section-title"><div class="hm-sec-icon" style="background:rgba(14,165,233,.15);border-color:rgba(14,165,233,.3);color:var(--sky)">&#9638;</div><h3>Node Shapes</h3></div>
+        <div class="hm-section-title"><div class="hm-sec-icon" style="background:rgba(14,165,233,.15);border-color:rgba(14,165,233,.3);color:var(--sky)">&#9638;</div><h3>Section 3 - Node Shapes</h3></div>
         <div class="hm-item"><span class="hm-dot dot-green"></span><div class="hm-item-body"><div class="hm-item-title">9 Standard Shapes</div><div class="hm-item-desc">
           &bull; <strong>&#11044; Start/End</strong> — Oval. Marks the start or end of the process.<br>
           &bull; <strong>&#9646; Process</strong> — Rectangle. A specific action or task to be performed.<br>
@@ -9678,7 +11025,7 @@ window.pnManualSave = function(){
       </div>
 
       <div class="hm-section">
-        <div class="hm-section-title"><div class="hm-sec-icon" style="background:rgba(245,158,11,.15);border-color:rgba(245,158,11,.3);color:#fbbf24">&#8594;</div><h3>Connecting Nodes with Arrows</h3></div>
+        <div class="hm-section-title"><div class="hm-sec-icon" style="background:rgba(245,158,11,.15);border-color:rgba(245,158,11,.3);color:#fbbf24">&#8594;</div><h3>Section 4 - Connecting Nodes with Arrows</h3></div>
         <div class="hm-item"><span class="hm-dot dot-amber"></span><div class="hm-item-body"><div class="hm-item-title">2-Click Connect</div><div class="hm-item-desc">
           1. <strong>Click a node</strong> to select it — a glowing <strong style="color:var(--sky)">&#8594;</strong> button appears on its right.<br>
           2. <strong>Click &#8594;</strong> — all other nodes glow blue as valid targets.<br>
@@ -9689,7 +11036,7 @@ window.pnManualSave = function(){
       </div>
 
       <div class="hm-section">
-        <div class="hm-section-title"><div class="hm-sec-icon" style="background:rgba(56,189,248,.15);border-color:rgba(56,189,248,.3);color:var(--sky)">&#9881;</div><h3>Moving, Selecting &amp; Saving</h3></div>
+        <div class="hm-section-title"><div class="hm-sec-icon" style="background:rgba(56,189,248,.15);border-color:rgba(56,189,248,.3);color:var(--sky)">&#9881;</div><h3>Section 5 - Moving, Selecting &amp; Saving</h3></div>
         <div class="hm-item"><span class="hm-dot dot-sky"></span><div class="hm-item-body"><div class="hm-item-title">Moving &amp; Renaming Nodes</div><div class="hm-item-desc"><strong>Move:</strong> drag a node — all connected arrows re-route automatically. <strong>Rename:</strong> double-click any node, type the new label, press <kbd class="hm-kbd">Enter</kbd>. <strong>Delete:</strong> select a node then press <kbd class="hm-kbd">Del</kbd> or click the red <strong style="color:var(--red)">&#10005;</strong> button.</div></div></div>
         <div class="hm-item"><span class="hm-dot dot-purple"></span><div class="hm-item-body"><div class="hm-item-title">Multi-Select &amp; Group Move</div><div class="hm-item-desc">Drag on the empty canvas background to draw a <strong>lasso rectangle</strong> — all nodes inside are selected. Drag any selected node to move the whole group. Press <kbd class="hm-kbd">Del</kbd> to delete all selected nodes at once.</div></div></div>
         <div class="hm-item"><span class="hm-dot dot-green"></span><div class="hm-item-body"><div class="hm-item-title">Saving</div><div class="hm-item-desc">Click <strong style="color:#34d399">&#128190; Save</strong> in the toolbar or press <kbd class="hm-kbd">Ctrl+S</kbd> / <kbd class="hm-kbd">&#8984;+S</kbd>. All projects are stored locally in your browser — clearing site data will erase them, so save regularly.</div></div></div>
@@ -10021,6 +11368,141 @@ window.pfcPermDelProj=function(id){if(!confirm('Permanently delete this project?
 window.pfcSaveProject=function(){save();renderSidebar();showSt('&#128190; Saved!');};
 window.pfcClearCanvas=function(){var p=ap();if(!p)return;if(!p.nodes.length&&!p.arrows.length)return;if(!confirm('Clear canvas?'))return;p.nodes=[];p.arrows=[];save();renderCanvas();showSt('Cleared');};
 
+/* ── Export Flow Chart as PNG ── */
+window.pfcExportPNG=function(){
+  var p=ap();
+  if(!p){showSt('No project selected');return;}
+  if(!p.nodes.length){showSt('Nothing to export — canvas is empty');return;}
+
+  var cw=$c('pfcCanvasWrap');
+  var cv=$c('pfcCanvas');
+  var svgLayer=$c('pfcSvgLayer');
+  if(!cw||!cv||!svgLayer){showSt('Export error: canvas not found');return;}
+
+  // ── 1. Compute bounding box from node data ──
+  var pad=56;
+  var minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+  p.nodes.forEach(function(n){
+    var el=cv.querySelector('[data-nid="'+n.id+'"]');
+    var nw=el?el.offsetWidth:130, nh=el?el.offsetHeight:54;
+    if(n.x<minX)minX=n.x; if(n.y<minY)minY=n.y;
+    if(n.x+nw>maxX)maxX=n.x+nw; if(n.y+nh>maxY)maxY=n.y+nh;
+  });
+  if(!isFinite(minX)){showSt('Could not calculate bounds');return;}
+  minX-=pad; minY-=pad; maxX+=pad; maxY+=pad;
+  var W=maxX-minX, H=maxY-minY;
+  var SCALE=2;
+
+  showSt('&#128247; Generating PNG…');
+
+  // ── 2. Build a self-contained SVG ──
+  // Get computed styles for the SVG arrows
+  var svgArrows=svgLayer.innerHTML;
+
+  // Build node rectangles as SVG foreignObject + rect outlines
+  var nodesSvg='';
+  p.nodes.forEach(function(n){
+    var el=cv.querySelector('[data-nid="'+n.id+'"]');
+    if(!el)return;
+    var nw=el.offsetWidth, nh=el.offsetHeight;
+    var cs=window.getComputedStyle(el);
+    var bg=cs.background||cs.backgroundColor||'rgba(14,165,233,0.2)';
+    var border=cs.border||'1.5px solid rgba(56,189,248,0.55)';
+    var color=cs.color||'#bae6fd';
+    var br=cs.borderRadius||'6px';
+    var label=n.label||'';
+    var isDecision=n.type==='decision';
+    var rx=n.x-minX, ry=n.y-minY;
+
+    if(isDecision){
+      // Diamond shape
+      var cx=rx+nw/2, cy=ry+nh/2, hw=nw/2, hh=nh/2;
+      nodesSvg+=`<polygon points="${cx},${cy-hh} ${cx+hw},${cy} ${cx},${cy+hh} ${cx-hw},${cy}"
+        fill="rgba(139,92,246,0.2)" stroke="rgba(139,92,246,0.55)" stroke-width="1.5"/>
+        <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle"
+        font-family="Inter,sans-serif" font-size="11" font-weight="600" fill="#ddd6fe"
+        style="pointer-events:none">${gm_esc(label)}</text>`;
+    } else if(n.type==='terminal'){
+      nodesSvg+=`<rect x="${rx}" y="${ry}" width="${nw}" height="${nh}" rx="${Math.min(nh/2,30)}"
+        fill="rgba(16,185,129,0.2)" stroke="rgba(16,185,129,0.55)" stroke-width="1.5"/>
+        <text x="${rx+nw/2}" y="${ry+nh/2}" text-anchor="middle" dominant-baseline="middle"
+        font-family="Inter,sans-serif" font-size="11" font-weight="600" fill="#a7f3d0">${gm_esc(label)}</text>`;
+    } else if(n.type==='connector'||n.type==='connector-node'){
+      var cr=Math.min(nw,nh)/2;
+      nodesSvg+=`<circle cx="${rx+nw/2}" cy="${ry+nh/2}" r="${cr}"
+        fill="rgba(251,113,133,0.18)" stroke="rgba(251,113,133,0.55)" stroke-width="1.5"/>
+        <text x="${rx+nw/2}" y="${ry+nh/2}" text-anchor="middle" dominant-baseline="middle"
+        font-family="Inter,sans-serif" font-size="10" font-weight="600" fill="#fda4af">${gm_esc(label)}</text>`;
+    } else if(n.type==='io'){
+      var skew=12;
+      nodesSvg+=`<polygon points="${rx+skew},${ry} ${rx+nw},${ry} ${rx+nw-skew},${ry+nh} ${rx},${ry+nh}"
+        fill="rgba(251,191,36,0.18)" stroke="rgba(251,191,36,0.6)" stroke-width="1.5"/>
+        <text x="${rx+nw/2}" y="${ry+nh/2}" text-anchor="middle" dominant-baseline="middle"
+        font-family="Inter,sans-serif" font-size="11" font-weight="600" fill="#fcd34d">${gm_esc(label)}</text>`;
+    } else {
+      // Default: process, document, multidoc, prep, text
+      var fillMap={process:'rgba(14,165,233,.2)',document:'rgba(52,211,153,.15)',multidoc:'rgba(52,211,153,.15)',prep:'rgba(245,158,11,.15)',text:'transparent'};
+      var strokeMap={process:'rgba(56,189,248,.55)',document:'rgba(16,185,129,.55)',multidoc:'rgba(16,185,129,.55)',prep:'rgba(245,158,11,.55)',text:'rgba(148,163,184,.3)'};
+      var colorMap={process:'#bae6fd',document:'#a7f3d0',multidoc:'#a7f3d0',prep:'#fde68a',text:'#94a3b8'};
+      var fill=fillMap[n.type]||fillMap.process;
+      var stroke=strokeMap[n.type]||strokeMap.process;
+      var txtc=colorMap[n.type]||colorMap.process;
+      nodesSvg+=`<rect x="${rx}" y="${ry}" width="${nw}" height="${nh}" rx="6"
+        fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>
+        <text x="${rx+nw/2}" y="${ry+nh/2}" text-anchor="middle" dominant-baseline="middle"
+        font-family="Inter,sans-serif" font-size="11" font-weight="600" fill="${txtc}"
+        clip-path="inset(0 4px)">${gm_esc(label)}</text>`;
+    }
+  });
+
+  // Translate arrows to match offset
+  var arrowsSvg=svgArrows.replace(/\bd="M(-?\d+\.?\d*),(-?\d+\.?\d*)/g,function(m,x,y){
+    return 'd="M'+(parseFloat(x)-minX)+','+(parseFloat(y)-minY);
+  }).replace(/\bx="(-?\d+\.?\d*)"\s+y="(-?\d+\.?\d*)"/g,function(m,x,y){
+    return 'x="'+(parseFloat(x)-minX)+'" y="'+(parseFloat(y)-minY)+'"';
+  });
+
+  var svgStr=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <marker id="expArrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+        <path d="M0,0 L8,4 L0,8 Z" fill="rgba(56,189,248,.8)"/>
+      </marker>
+      <marker id="expArrowSel" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+        <path d="M0,0 L8,4 L0,8 Z" fill="#38bdf8"/>
+      </marker>
+    </defs>
+    <rect width="${W}" height="${H}" fill="#060d1a"/>
+    ${arrowsSvg}
+    ${nodesSvg}
+  </svg>`;
+
+  // ── 3. Render SVG to canvas and download ──
+  var blob=new Blob([svgStr],{type:'image/svg+xml;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var img=new Image();
+  img.onload=function(){
+    var canvas=document.createElement('canvas');
+    canvas.width=W*SCALE; canvas.height=H*SCALE;
+    var ctx=canvas.getContext('2d');
+    ctx.scale(SCALE,SCALE);
+    ctx.drawImage(img,0,0);
+    URL.revokeObjectURL(url);
+    canvas.toBlob(function(pngBlob){
+      var a=document.createElement('a');
+      a.download='ProctoAct_FlowChart_'+(p.name||'export').replace(/\s+/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.png';
+      a.href=URL.createObjectURL(pngBlob);
+      a.click();
+      setTimeout(function(){URL.revokeObjectURL(a.href);},2000);
+      showSt('&#10003; PNG exported!');
+    },'image/png');
+  };
+  img.onerror=function(){
+    URL.revokeObjectURL(url);
+    showSt('Export failed — try again');
+  };
+  img.src=url;
+};
+
 /* ── Add node ── */
 window.pfcAddNode=function(type){var p=ap();if(!p)return;var cw=$c('pfcCanvasWrap');var cx=(cw?cw.scrollLeft:0)+_sx,cy=(cw?cw.scrollTop:0)+_sy;_sx+=28;_sy+=28;if(_sx>360){_sx=90;_sy=80;}var lbls={process:'Process',decision:'Decision',terminal:'Start / End',connector:'A',io:'Input / Output',document:'Document',multidoc:'Multi-Document',prep:'Preparation',text:'Label text'};var n={id:uid('n'),type:type,x:cx,y:cy,label:lbls[type]||'Node'};p.nodes.push(n);renderNode(n);showSt('Node added');};
 
@@ -10171,6 +11653,13 @@ body:not(.light-theme) .pgc-body{background:#0d1829;}
 #gantt-app .task-row-hl{background:#FAFBFC;}
 #gantt-app .task-row-sub{background:#FFFFFF;}
 #gantt-app .task-row-hidden{display:none!important;}
+body:not(.light-theme) #gantt-app #taskPanel{background:#0d1829!important;border-right-color:#172645!important;}
+body:not(.light-theme) #gantt-app #taskPanelHeader{background:#091628!important;border-bottom-color:#172645!important;}
+body:not(.light-theme) #gantt-app #chartPanel{background:#091017!important;}
+body:not(.light-theme) #gantt-app .task-row{border-bottom-color:#172645!important;}
+body:not(.light-theme) #gantt-app .task-row-hl{background:#0d1829!important;}
+body:not(.light-theme) #gantt-app .task-row-sub{background:#0d1829!important;}
+body:not(.light-theme) #gantt-app .task-row:hover{background:rgba(56,189,248,.06)!important;}
 #gantt-app .chevron-btn{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;flex-shrink:0;cursor:pointer;border:none;background:transparent;padding:0;color:#6B7280;transition:transform .18s;}
 #gantt-app .chevron-btn.collapsed svg{transform:rotate(-90deg);}
 #gantt-app .chevron-btn svg{transition:transform .18s;}
@@ -10184,6 +11673,12 @@ body:not(.light-theme) .pgc-body{background:#0d1829;}
 #gantt-app .btn-add{border-color:#008163;color:#008163;}#gantt-app .btn-add:hover{background:#D1FAE5;}
 #gantt-app .btn-edit{border-color:#3B82F6;color:#3B82F6;}#gantt-app .btn-edit:hover{background:#EFF6FF;}
 #gantt-app .btn-del{border-color:#E4002B;color:#E4002B;}#gantt-app .btn-del:hover{background:#FEE2E2;}
+body:not(.light-theme) #gantt-app .btn-add{border-color:#34d399;color:#34d399;}
+body:not(.light-theme) #gantt-app .btn-add:hover{background:rgba(52,211,153,.15)!important;}
+body:not(.light-theme) #gantt-app .btn-edit{border-color:#60a5fa;color:#60a5fa;}
+body:not(.light-theme) #gantt-app .btn-edit:hover{background:rgba(96,165,250,.15)!important;}
+body:not(.light-theme) #gantt-app .btn-del{border-color:#f87171;color:#f87171;}
+body:not(.light-theme) #gantt-app .btn-del:hover{background:rgba(248,113,113,.15)!important;}
 #gantt-app .project-card{cursor:pointer;transition:all .15s;}
 #gantt-app .project-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.12)!important;}
 #gantt-app .fade-up{animation:gm_fadeUp .18s ease;}
@@ -10193,20 +11688,34 @@ body:not(.light-theme) #gantt-app .bg-white{background:#0d1829!important;}
 body:not(.light-theme) #gantt-app [style*="background:#FAFBFC"]{background:#111f35!important;}
 body:not(.light-theme) #gantt-app [style*="background:#FFFFFF"]{background:#0d1829!important;}
 body:not(.light-theme) #gantt-app [style*="background:#F0F2F5"]{background:#060d1a!important;}
+body:not(.light-theme) #gantt-app [style*="background:#F5F6FA"]{background:#091628!important;}
+body:not(.light-theme) #gantt-app [style*="background:white"]{background:#0d1829!important;}
 body:not(.light-theme) #gantt-app .text-gray-800{color:#f1f5f9!important;}
-body:not(.light-theme) #gantt-app .text-gray-700{color:#94a3b8!important;}
-body:not(.light-theme) #gantt-app .text-gray-600,.text-gray-500{color:#64748b!important;}
-body:not(.light-theme) #gm_projectModal .modal-box,
-body:not(.light-theme) #gm_taskModal .modal-box{background:#0d1829!important;color:#f1f5f9!important;}
-body:not(.light-theme) #gm_projectModal h2,
-body:not(.light-theme) #gm_taskModal h2,
-body:not(.light-theme) #gm_projectModal label,
-body:not(.light-theme) #gm_taskModal label{color:#f1f5f9!important;}
-body:not(.light-theme) #gm_projectModal input,
-body:not(.light-theme) #gm_projectModal textarea,
-body:not(.light-theme) #gm_taskModal input,
-body:not(.light-theme) #gm_taskModal textarea,
-body:not(.light-theme) #gm_taskModal select{background:#111f35!important;border-color:#172645!important;color:#f1f5f9!important;}
+body:not(.light-theme) #gantt-app .text-gray-700{color:#cbd5e1!important;}
+body:not(.light-theme) #gantt-app .text-gray-600{color:#94a3b8!important;}
+body:not(.light-theme) #gantt-app .text-gray-500{color:#64748b!important;}
+body:not(.light-theme) #gantt-app .text-gray-400{color:#475569!important;}
+body:not(.light-theme) #gantt-app .bg-gray-50{background:#091628!important;}
+body:not(.light-theme) #gantt-app .bg-gray-100{background:#111f35!important;}
+body:not(.light-theme) #gantt-app .bg-gray-200{background:#172645!important;}
+body:not(.light-theme) #gantt-app .border-gray-200{border-color:#172645!important;}
+body:not(.light-theme) #gantt-app .border-gray-300{border-color:#1e3a5f!important;}
+body:not(.light-theme) #gantt-app .divide-gray-100>*+*{border-color:#172645!important;}
+body:not(.light-theme) #gantt-app .divide-gray-200>*+*{border-color:#172645!important;}
+body:not(.light-theme) #gantt-app [style*="border-color:#E5E7EB"]{border-color:#172645!important;}
+body:not(.light-theme) #gantt-app [style*="border:#E5E7EB"]{border-color:#172645!important;}
+body:not(.light-theme) #gantt-app [style*="color:#374151"]{color:#f1f5f9!important;}
+body:not(.light-theme) #gantt-app [style*="color:#4B5563"]{color:#cbd5e1!important;}
+body:not(.light-theme) #gantt-app [style*="color:#6B7280"]{color:#94a3b8!important;}
+body:not(.light-theme) #gantt-app [style*="color:#111827"]{color:#f1f5f9!important;}
+body:not(.light-theme) #gantt-app [style*="color:#1F2937"]{color:#e2e8f0!important;}
+body:not(.light-theme) #gantt-app input,
+body:not(.light-theme) #gantt-app select,
+body:not(.light-theme) #gantt-app textarea{background:#111f35!important;border-color:#1e3a5f!important;color:#f1f5f9!important;}
+body:not(.light-theme) #gantt-app input::placeholder,
+body:not(.light-theme) #gantt-app textarea::placeholder{color:#475569!important;}
+body:not(.light-theme) #gantt-app .hover\:bg-gray-50:hover{background:rgba(56,189,248,.06)!important;}
+body:not(.light-theme) #gantt-app .hover\:bg-gray-100:hover{background:rgba(56,189,248,.08)!important;}
 </style>
 
 <script>
@@ -10222,6 +11731,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;m
 ::-webkit-scrollbar-track{background:#f1f1f1;}
 ::-webkit-scrollbar-thumb{background:#C1C1C1;border-radius:3px;}
 ::-webkit-scrollbar-thumb:hover{background:#A0A0A0;}
+body:not(.light-theme) #gantt-app ::-webkit-scrollbar-track{background:#060d1a;}
+body:not(.light-theme) #gantt-app ::-webkit-scrollbar-thumb{background:#1e3a5f;}
+body:not(.light-theme) #gantt-app ::-webkit-scrollbar-thumb:hover{background:#2d5175;}
 
 /* MODALS */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.48);display:flex;align-items:center;justify-content:center;z-index:9999;}
@@ -10244,6 +11756,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;m
 .task-row-hl{background:#FAFBFC;}
 .task-row-sub{background:#FFFFFF;}
 .task-row-hidden{display:none!important;}
+
+/* ── DARK MODE — Gantt full override ── */
+body:not(.light-theme) #taskPanel{background:#0d1829!important;border-right-color:#172645!important;}
+body:not(.light-theme) #taskPanelHeader{background:#091628!important;border-bottom-color:#172645!important;}
+body:not(.light-theme) #chartPanel{background:#091017!important;}
+body:not(.light-theme) .task-row{border-bottom-color:#172645!important;}
+body:not(.light-theme) .task-row-hl{background:#0d1829!important;}
+body:not(.light-theme) .task-row-sub{background:#0d1829!important;}
+body:not(.light-theme) .task-row:hover{background:rgba(56,189,248,.06)!important;}
 
 /* CHEVRON TOGGLE */
 .chevron-btn{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;flex-shrink:0;cursor:pointer;border:none;background:transparent;padding:0;color:#6B7280;transition:transform .18s,color .15s;}
@@ -10285,7 +11806,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--green)!i
 .project-card:hover{box-shadow:0 10px 36px rgba(0,0,0,.13);transform:translateY(-2px);}
 
 /* GANTT GLOBALS */
-.gcol{width:20px;min-width:20px;flex-shrink:0;}
+.gcol{width:32px;min-width:32px;flex-shrink:0;}
 .today-line{position:absolute;top:0;bottom:0;width:2px;background:var(--orange);opacity:.55;pointer-events:none;z-index:4;}
 
 /* NAV BAR */
@@ -10294,6 +11815,44 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--green)!i
 .nav-btn:hover{background:#0ea5e9;border-color:#0ea5e9;color:#fff;}
 .month-sel{height:30px;padding:0 10px;border:1.5px solid #D1D5DB;border-radius:7px;font-size:12px;font-weight:600;color:#374151;background:#fff;cursor:pointer;}
 .month-sel:focus{border-color:var(--green);outline:none;}
+
+/* ── DARK MODE — nav bar, buttons, modals ── */
+body:not(.light-theme) .gantt-nav{background:#091628!important;border-bottom-color:#172645!important;}
+body:not(.light-theme) .nav-btn{background:#111f35!important;border-color:#1e3a5f!important;color:#94a3b8!important;}
+body:not(.light-theme) .nav-btn:hover{background:#0ea5e9!important;border-color:#0ea5e9!important;color:#fff!important;}
+body:not(.light-theme) .month-sel{background:#111f35!important;border-color:#1e3a5f!important;color:#f1f5f9!important;}
+body:not(.light-theme) .month-sel option{background:#111f35;color:#f1f5f9;}
+body:not(.light-theme) .btn-add{background:rgba(0,129,99,.18)!important;color:#34d399!important;}
+body:not(.light-theme) .btn-edit{background:rgba(59,130,246,.15)!important;color:#60a5fa!important;}
+body:not(.light-theme) .btn-del{background:rgba(228,0,43,.15)!important;color:#f87171!important;}
+body:not(.light-theme) #gantt-app .btn-add:hover{background:rgba(0,129,99,.3)!important;}
+body:not(.light-theme) #gantt-app .btn-edit:hover{background:rgba(59,130,246,.28)!important;}
+body:not(.light-theme) #gantt-app .btn-del:hover{background:rgba(228,0,43,.28)!important;}
+body:not(.light-theme) .chevron-btn{color:#64748b!important;}
+body:not(.light-theme) .chevron-btn:hover{color:#38bdf8!important;}
+body:not(.light-theme) .modal-box{background:#0d1829!important;color:#f1f5f9!important;}
+body:not(.light-theme) .modal-box h2,
+body:not(.light-theme) .modal-box h3,
+body:not(.light-theme) .modal-box label{color:#f1f5f9!important;}
+body:not(.light-theme) .modal-box input,
+body:not(.light-theme) .modal-box textarea,
+body:not(.light-theme) .modal-box select{background:#111f35!important;border-color:#172645!important;color:#f1f5f9!important;}
+body:not(.light-theme) .modal-box .text-gray-700,
+body:not(.light-theme) .modal-box .text-gray-800{color:#94a3b8!important;}
+body:not(.light-theme) #gm_projectModal .modal-box,
+body:not(.light-theme) #gm_taskModal .modal-box{background:#0d1829!important;color:#f1f5f9!important;}
+body:not(.light-theme) #gm_projectModal h2,
+body:not(.light-theme) #gm_taskModal h2,
+body:not(.light-theme) #gm_projectModal label,
+body:not(.light-theme) #gm_taskModal label{color:#f1f5f9!important;}
+body:not(.light-theme) #gm_projectModal input,
+body:not(.light-theme) #gm_projectModal textarea,
+body:not(.light-theme) #gm_taskModal input,
+body:not(.light-theme) #gm_taskModal textarea,
+body:not(.light-theme) #gm_taskModal select{background:#111f35!important;border-color:#172645!important;color:#f1f5f9!important;}
+body:not(.light-theme) #gantt-app ::-webkit-scrollbar-track{background:#091017;}
+body:not(.light-theme) #gantt-app ::-webkit-scrollbar-thumb{background:#1e3a5f;}
+body:not(.light-theme) #gantt-app ::-webkit-scrollbar-thumb:hover{background:#2d4f75;}
 
 /* TOOLTIP */
 [data-tip]{position:relative;}
@@ -10336,7 +11895,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--green)!i
 </div>
 
 <!-- ========== TASK MODAL ========== -->
-<div id="taskModal" class="modal-overlay" style="display:none">
+<div id="gm_standaloneTaskModal" class="modal-overlay" style="display:none">
   <div class="modal-box fade-up" style="width:660px">
     <div class="flex items-center justify-between mb-5">
       <h2 class="text-xl font-bold text-gray-800" id="tmTitle">Add Task</h2>
@@ -10344,7 +11903,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--green)!i
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
     </div>
-    <input type="hidden" id="tmId">
+    <input type="hidden" id="gm_s_tmId">
 
     <!-- Parent selector -->
     <div id="tmParentRow" class="mb-4" style="display:none">
@@ -10387,17 +11946,17 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--green)!i
       </div>
       <div class="flex items-end pb-1">
         <label class="flex items-center gap-3 cursor-pointer select-none" onclick="gm_toggleWeekends()">
-          <div class="toggle-track" id="wkToggle"><div class="toggle-thumb"></div></div>
+          <div class="toggle-track" id="gm_s_wkToggle"><div class="toggle-thumb"></div></div>
           <span class="text-sm font-semibold text-gray-700">Include Weekends</span>
         </label>
         <input type="hidden" id="tmWeekends" value="0">
       </div>
       <div class="col-span-2">
         <label class="block text-sm font-semibold text-gray-700 mb-2">
-          Work Completion: <span id="tmPctLabel" class="font-bold" style="color:var(--green)">0%</span>
+          Work Completion: <span id="gm_s_tmPctLabel" class="font-bold" style="color:var(--green)">0%</span>
         </label>
         <div class="flex items-center gap-3">
-          <input type="range" id="tmSlider" min="0" max="100" value="0" class="flex-1"
+          <input type="range" id="gm_s_tmSlider" min="0" max="100" value="0" class="flex-1"
             oninput="gm_syncPct(this.value,'slider')">
           <input type="number" id="tmPct" min="0" max="100" value="0"
             class="w-16 border border-gray-300 rounded-lg px-2 py-1.5 text-sm text-center"
@@ -10409,6 +11968,12 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--green)!i
         <label class="block text-sm font-semibold text-gray-700 mb-1.5">Remarks</label>
         <textarea id="tmRemarks" rows="2" placeholder="Notes, dependencies, blockers..."
           class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm resize-none"></textarea>
+      </div>
+      <div class="col-span-2">
+        <label class="block text-sm font-semibold text-gray-700 mb-1.5">⛓ Depends On <span style="font-weight:400;color:#9ca3af">(predecessor task WBS, e.g. 1.1)</span></label>
+        <select id="tmPredecessor" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm">
+          <option value="">— None —</option>
+        </select>
       </div>
     </div>
 
@@ -10687,7 +12252,7 @@ function gm_renderDashboard(){
     <div class="pn-footer-brand">&copy; 2026 ProctoAct App &bull; proctoactapp.com</div>
     <div class="pn-footer-tag">Projects, To-Dos &amp; Actions</div>
     <div class="pn-footer-sub">Made for everyone who knows the creator</div>
-    <div class="pn-footer-sub">Version 1.39</div>
+    <div class="pn-footer-sub">Version 1.40</div>
   </div>
 </div>`;
 }
@@ -10698,6 +12263,8 @@ const GM_DAY_W = 32, ROW_H = 46, HDR_H = 84;
 function gm_renderProject(){
   const proj=GM.projects.find(p=>p.id===GM.projectId);
   if(!proj){ GM.view='dashboard'; gm_renderDashboard(); return; }
+
+  const isDark = !document.body.classList.contains('light-theme');
 
   const allTasks=gm_buildOrderedTasks(proj.tasks||[]);
   const taskMap={}; allTasks.forEach(t=>taskMap[t.id]=t);
@@ -10791,6 +12358,7 @@ function gm_renderProject(){
         <div style="padding-left:${indent}px" class="flex items-center gap-1.5 min-w-0">
           ${isHL?`<div class="w-2 h-2 rounded-sm flex-shrink-0" style="background:#0ea5e9"></div>`:`<div class="w-1.5 h-1.5 rounded-full flex-shrink-0 bg-gray-300"></div>`}
           <span class="text-xs font-${isHL?'bold':'medium'} text-gray-800 line-clamp-1" title="${gm_esc(task.name)}" style="max-width:198px">${gm_esc(task.name)}</span>
+          ${task.predecessorId&&taskMap[task.predecessorId]?`<span title="Depends on: ${gm_esc(taskMap[task.predecessorId].name)}" style="font-size:8px;color:#f87171;flex-shrink:0;opacity:.8">⛓${taskMap[task.predecessorId].wbs}</span>`:''}
         </div>
       </td>
       <!-- PIC -->
@@ -10908,7 +12476,7 @@ function gm_renderProject(){
         <!-- ── NAVIGATION TOOLBAR ── -->
         <div class="gantt-nav">
           <button class="nav-btn" onclick="gm_ganttPrev()" title="Previous week">&#8249;</button>
-          <select id="ganttMonthSel" class="month-sel" onchange="gm_ganttJumpToMonth(this.value)">
+          <select id="gm_ganttMonthSel" class="month-sel" onchange="gm_ganttJumpToMonth(this.value)">
             ${months.map(m=>`<option value="${m.key}">${m.label}</option>`).join('')}
           </select>
           <button class="nav-btn" onclick="gm_ganttNext()" title="Next week">&#8250;</button>
@@ -10978,13 +12546,16 @@ function gm_renderProject(){
                     style="width:${w.span*GM_DAY_W}px;min-width:${w.span*GM_DAY_W}px;border-right:1px solid rgba(255,255,255,.18)">${w.label}</div>`).join('')}
                 </div>
                 <!-- Day row -->
-                <div class="flex" style="height:28px;background:#F5F6FA;border-bottom:2px solid #E5E7EB">
+                <div class="flex" style="height:28px;background:${isDark?'#091628':'#F5F6FA'};border-bottom:2px solid ${isDark?'#172645':'#E5E7EB'}">
                   ${days.map((d,i)=>{
                     const wk=gm_isWknd(d), isT=(i===todayIdx);
+                    const dayBg = isT ? (isDark?'rgba(238,114,3,.3)':'#FFF3E0') : wk ? (isDark?'rgba(255,255,255,.03)':'#EFEFEF') : 'transparent';
+                    const dayLetterColor = isT ? 'var(--orange)' : wk ? (isDark?'#475569':'#C0C0C0') : (isDark?'#7dd3fc':'#6b7280');
+                    const dayNumColor = isT ? 'var(--orange)' : wk ? (isDark?'#64748b':'#CACACA') : (isDark?'#e2e8f0':'#374151');
                     return `<div class="gcol flex flex-col items-center justify-center"
-                      style="border-right:1px solid #E9EAED;${wk?'background:#EFEFEF':''}${isT?';background:#FFF3E0':''}">
-                      <div style="font-size:8px;color:${wk?'#C0C0C0':'#9CA3AF'};font-weight:700">${DNAMES[d.getDay()]}</div>
-                      <div style="font-size:10px;font-weight:${isT?'900':'600'};color:${isT?'var(--orange)':wk?'#CACACA':'#555'}">${d.getDate()}</div>
+                      style="border-right:1px solid ${isDark?'#172645':'#E9EAED'};${dayBg?'background:'+dayBg:''}">
+                      <div style="font-size:7px;color:${dayLetterColor};font-weight:800;letter-spacing:.5px">${DNAMES[d.getDay()]}</div>
+                      <div style="font-size:10px;font-weight:${isT?'900':'700'};color:${dayNumColor}">${d.getDate()}</div>
                     </div>`;
                   }).join('')}
                 </div>
@@ -10995,6 +12566,27 @@ function gm_renderProject(){
               <div style="width:${totalW}px;position:relative">
                 ${visTasks.map(ganttRowHtml).join('')}
                 ${todayVis?`<div class="today-line" style="position:absolute;top:0;bottom:0;left:${todayIdx*GM_DAY_W+GM_DAY_W/2}px"></div>`:''}
+                <!-- Dependency arrows SVG overlay -->
+                <svg style="position:absolute;top:0;left:0;width:${totalW}px;height:${visTasks.length*ROW_H}px;overflow:visible;pointer-events:none;z-index:6;" xmlns="http://www.w3.org/2000/svg">
+                  <defs><marker id="depArrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="rgba(248,113,113,.85)"/></marker></defs>
+                  ${(function(){
+                    const taskMap2={};
+                    visTasks.forEach(function(t,i){ taskMap2[t.id]={task:t,row:i}; });
+                    return visTasks.map(function(t){
+                      if(!t.predecessorId||!taskMap2[t.predecessorId]) return '';
+                      const pred=taskMap2[t.predecessorId];
+                      const predEnd=pred.task.endDate?Math.round((gm_parseD(pred.task.endDate)-gStart)/864e5):null;
+                      const thisStart=t.startDate?Math.round((gm_parseD(t.startDate)-gStart)/864e5):null;
+                      if(predEnd===null||thisStart===null) return '';
+                      const x1=(predEnd+1)*GM_DAY_W;
+                      const y1=pred.row*ROW_H+ROW_H/2;
+                      const x2=thisStart*GM_DAY_W;
+                      const y2=taskMap2[t.id].row*ROW_H+ROW_H/2;
+                      const mx=(x1+x2)/2;
+                      return `<path d="M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}" fill="none" stroke="rgba(248,113,113,.65)" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#depArrow)"/>`;
+                    }).join('');
+                  })()}
+                </svg>
               </div>
             </div>
           </div>
@@ -11002,10 +12594,10 @@ function gm_renderProject(){
         </div><!-- /ganttWrapper -->
 
         <!-- LEGEND -->
-        <div class="flex-shrink-0 border-t border-gray-100 px-5 py-2 flex items-center gap-5 flex-wrap text-xs" style="background:#FAFBFC">
-          ${Object.entries(ST).map(([s,c])=>`<span class="flex items-center gap-1.5 text-gray-500"><span class="inline-block w-3 h-3 rounded" style="background:${c.bar}"></span>${s}</span>`).join('')}
-          <span class="flex items-center gap-1.5 text-gray-500 ml-2"><span class="inline-block w-3 h-2 rounded" style="background:var(--orange);opacity:.5"></span>Today</span>
-          <span class="ml-auto text-gray-400">Darker fill = completion % · Click any bar to edit</span>
+        <div class="flex-shrink-0 border-t px-5 py-2 flex items-center gap-5 flex-wrap text-xs" style="background:${isDark?'#091628':'#FAFBFC'};border-color:${isDark?'#172645':'#e5e7eb'}">
+          ${Object.entries(ST).map(([s,c])=>`<span class="flex items-center gap-1.5" style="color:${isDark?'#64748b':'#6b7280'}"><span class="inline-block w-3 h-3 rounded" style="background:${c.bar}"></span>${s}</span>`).join('')}
+          <span class="flex items-center gap-1.5 ml-2" style="color:${isDark?'#64748b':'#6b7280'}"><span class="inline-block w-3 h-2 rounded" style="background:var(--orange);opacity:.5"></span>Today</span>
+          <span class="ml-auto" style="color:${isDark?'#475569':'#9ca3af'}">Darker fill = completion % · Click any bar to edit</span>
         </div>
       </div>
     `}
@@ -11016,7 +12608,7 @@ function gm_renderProject(){
     <div class="pn-footer-brand">&copy; 2026 ProctoAct App &bull; proctoactapp.com</div>
     <div class="pn-footer-tag">Projects, To-Dos &amp; Actions</div>
     <div class="pn-footer-sub">Made for everyone who knows the creator</div>
-    <div class="pn-footer-sub">Version 1.39</div>
+    <div class="pn-footer-sub">Version 1.40</div>
   </div>
 </div>`;
 
@@ -11029,7 +12621,7 @@ function gm_renderProject(){
     tBody.addEventListener('scroll',()=>{ if(syncing)return; syncing=true; body.scrollTop=tBody.scrollTop; syncing=false; });
     setTimeout(()=>{ if(todayVis){ const pos=Math.max(0,todayIdx*GM_DAY_W-140); body.scrollLeft=pos; hdr.scrollLeft=pos; }
       // set month selector to current month
-      const sel=document.getElementById('ganttMonthSel');
+      const sel=document.getElementById('ganttMonthSel')||document.getElementById('gm_ganttMonthSel');
       if(sel){ const now=new Date(); sel.value=`${now.getFullYear()}-${now.getMonth()}`; }
     },80);
   }
@@ -11082,7 +12674,7 @@ function gm_ganttJumpToMonth(key){
 function gm_syncMonthDropdown(){
   // after scrolling, update dropdown to show month in view
   const body=document.getElementById('chartBodyScroll');
-  const sel=document.getElementById('ganttMonthSel');
+  const sel=document.getElementById('ganttMonthSel')||document.getElementById('gm_ganttMonthSel');
   if(!body||!sel||!GM.gantt.gStart) return;
   const dayIdx=Math.round(body.scrollLeft/GM_DAY_W);
   const d=gm_addD(GM.gantt.gStart,dayIdx);
@@ -11259,6 +12851,19 @@ function gm_resetTM(){
   document.getElementById('wkToggle').classList.remove('on');
   gm_syncPct(0,'set');
   document.getElementById('gm_tmRemarks').value='';
+  gm_populatePredDD(null,'');
+}
+
+function gm_populatePredDD(excludeId, currentVal){
+  const proj=gm__proj(); if(!proj) return;
+  const tasks=gm_buildOrderedTasks(proj.tasks||[]);
+  const opts='<option value="">— None —</option>'+
+    tasks.filter(t=>t.id!==excludeId)
+         .map(t=>`<option value="${t.id}">${t.wbs} — ${gm_esc(t.name)}</option>`).join('');
+  ['tmPredecessor','gm_tmPredecessor'].forEach(id=>{
+    const sel=document.getElementById(id); if(!sel) return;
+    sel.innerHTML=opts; sel.value=currentVal||'';
+  });
 }
 
 function gm_populateParentDD(excludeId){
@@ -11271,6 +12876,7 @@ function gm_populateParentDD(excludeId){
 
 function gm_openAddTask(){
   gm_resetTM();
+  gm_populatePredDD(null,'');
   document.getElementById('gm_tmTitle').textContent='Add High-Level Task';
   document.getElementById('gm_tmParentRow').style.display='none';
   document.getElementById('gm_taskModal').style.display='flex';
@@ -11304,6 +12910,7 @@ function gm_editTaskById(taskId){
   else document.getElementById('wkToggle').classList.remove('on');
   gm_syncPct(task.completion||0,'set');
   document.getElementById('gm_tmRemarks').value=task.remarks||'';
+  gm_populatePredDD(taskId, task.predecessorId||'');  // populates both tmPredecessor and gm_tmPredecessor
   if(task.parentId){
     document.getElementById('gm_tmParentRow').style.display='block';
     gm_populateParentDD(taskId);
@@ -11326,15 +12933,16 @@ function gm_saveTask(){
   const workDays=daysVal||gm_calcWorkDays(startDate,endDate,inclWknd);
   const pct=parseInt(document.getElementById('tmSlider').value)||0;
   const existId=document.getElementById('tmId').value;
+  const predecessorId=(document.getElementById('gm_tmPredecessor')||document.getElementById('tmPredecessor'))?.value||null;
   let parentId=null;
   if(document.getElementById('gm_tmParentRow').style.display!=='none'){
     parentId=document.getElementById('gm_tmParent').value||null;
   }
   if(existId){
     const idx=proj.tasks.findIndex(t=>t.id===existId);
-    if(idx!==-1) proj.tasks[idx]={...proj.tasks[idx],name,pic:document.getElementById('gm_tmPIC').value.trim(),status:document.getElementById('gm_tmStatus').value,startDate,endDate,workDays,completion:pct,includeWeekends:inclWknd,remarks:document.getElementById('gm_tmRemarks').value.trim(),parentId};
+    if(idx!==-1) proj.tasks[idx]={...proj.tasks[idx],name,pic:document.getElementById('gm_tmPIC').value.trim(),status:document.getElementById('gm_tmStatus').value,startDate,endDate,workDays,completion:pct,includeWeekends:inclWknd,remarks:document.getElementById('gm_tmRemarks').value.trim(),parentId,predecessorId};
   } else {
-    proj.tasks.push({id:gm_uid(),name,pic:document.getElementById('gm_tmPIC').value.trim(),status:document.getElementById('gm_tmStatus').value,startDate,endDate,workDays,completion:pct,includeWeekends:inclWknd,remarks:document.getElementById('gm_tmRemarks').value.trim(),parentId,order:Date.now()});
+    proj.tasks.push({id:gm_uid(),name,pic:document.getElementById('gm_tmPIC').value.trim(),status:document.getElementById('gm_tmStatus').value,startDate,endDate,workDays,completion:pct,includeWeekends:inclWknd,remarks:document.getElementById('gm_tmRemarks').value.trim(),parentId,predecessorId,order:Date.now()});
   }
   gm_save(); gm_closeTM(); gm_renderProject();
 }
